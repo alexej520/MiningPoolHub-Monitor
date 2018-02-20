@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">MiningPoolHub</string>
+    <string name="preference_key_private_miningpoolhubApiKey" translatable="false">miningpoolhubApiKey</string>
+</resources>
