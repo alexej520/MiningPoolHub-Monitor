@@ -17,7 +17,7 @@ abstract class NetworkBoundResource<ResultT, RequestT>(
 
     @MainThread
     fun load(): LiveData<Resource<ResultT>> {
-        result.value = null
+        result.value = Resource(status = LOADING)
         val dbSource = loadFromDb()
         result.addSource(dbSource) { data ->
             result.removeSource(dbSource)

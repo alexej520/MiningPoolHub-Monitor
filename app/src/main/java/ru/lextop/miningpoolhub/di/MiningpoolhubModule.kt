@@ -24,7 +24,7 @@ class MiningpoolhubModule {
     fun provideRouteInterceptor(): Interceptor? {
         return object : Interceptor {
             private val pattern =
-                """^https://(.+?)${MiningpoolhubApi.QUERY_COIN_NAME}=([^&]*)&?(.*)""".toPattern()
+                """^https://(.+?)${MiningpoolhubApi.QUERY_POOL}=([^&]*)&?(.*)""".toPattern()
 
             override fun intercept(chain: Interceptor.Chain): Response {
                 val request = chain.request()

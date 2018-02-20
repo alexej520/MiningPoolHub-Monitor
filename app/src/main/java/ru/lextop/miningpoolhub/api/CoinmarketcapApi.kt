@@ -1,5 +1,6 @@
 package ru.lextop.miningpoolhub.api
 
+import android.arch.lifecycle.LiveData
 import retrofit2.http.GET
 import retrofit2.http.Path
 import retrofit2.http.Query
@@ -23,7 +24,7 @@ interface CoinmarketcapApi {
         id: String,
         @Query("convert")
         convert: String? = null
-    ): ApiResponse<List<Ticker>>
+    ): LiveData<ApiResponse<List<Ticker>>>
 
     // TODO: implement response
     @GET("global/")
