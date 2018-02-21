@@ -25,7 +25,7 @@ abstract class NetworkBoundResource<ResultT, RequestT>(
                 fetchFromNetwork(dbSource)
             } else {
                 result.addSource(dbSource) { newData ->
-                    result.setValueIfNotSame(Resource(status = SUCCESS, data = newData!!))
+                    result.setValueIfNotSame(Resource(status = SUCCESS, data = newData))
                 }
             }
         }
@@ -45,7 +45,7 @@ abstract class NetworkBoundResource<ResultT, RequestT>(
                     saveCallResult(processResponse(response))
                     appExecutors.mainThread.execute {
                         result.addSource(loadFromDb()) { newData ->
-                            result.setValueIfNotSame(Resource(status = SUCCESS, data = newData!!))
+                            result.setValueIfNotSame(Resource(status = SUCCESS, data = newData))
                         }
                     }
                 }
