@@ -12,12 +12,14 @@ object CoinmarketcapApiResponseDeserializer : JsonDeserializer<ApiResponse<*>> {
         type: Type,
         context: JsonDeserializationContext
     ): ApiResponse<*> {
-        val jsonObject = json.asJsonObject
-        val dataType = (type as ParameterizedType).actualTypeArguments[0]
-        val errorMessage = jsonObject["error"]?.asString
-        val data = jsonObject["data"]?.let {
-            context.deserialize<Any?>(it, dataType)
+        if (json.isJsonObject) {
+            val errorMessage = json.asJsonObject["error"]?.asString
+            if (errorMessage != null) {
+                return ApiResponse(null, errorMessage)
+            }
         }
-        return ApiResponse(data, errorMessage)
+        val dataType = (type as ParameterizedType).actualTypeArguments[0]
+        val data = context.deserialize<Any?>(json, dataType)
+        return ApiResponse(data, null)
     }
 }

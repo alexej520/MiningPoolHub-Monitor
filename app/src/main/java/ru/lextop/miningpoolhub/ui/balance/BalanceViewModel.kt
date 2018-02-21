@@ -1,22 +1,35 @@
 package ru.lextop.miningpoolhub.ui.balance
 
-import android.arch.lifecycle.*
+import android.arch.lifecycle.LiveData
+import android.arch.lifecycle.MutableLiveData
+import android.arch.lifecycle.Transformations
+import android.arch.lifecycle.ViewModel
 import ru.lextop.miningpoolhub.repository.BalanceRepository
 import ru.lextop.miningpoolhub.util.AbsentLiveData
-import ru.lextop.miningpoolhub.vo.Balance
+import ru.lextop.miningpoolhub.util.setSameValueIfNotNullAndNotEmpty
+import ru.lextop.miningpoolhub.util.setValueIfNotSame
+import ru.lextop.miningpoolhub.vo.BalancePair
 import ru.lextop.miningpoolhub.vo.Resource
 import javax.inject.Inject
 
 class BalanceViewModel @Inject constructor(
     private val balanceRepository: BalanceRepository
 ) : ViewModel() {
+
     private val converter = MutableLiveData<String>()
-    val balances: LiveData<Resource<List<Balance>>> = Transformations.switchMap(converter) {
-        if (it.isEmpty()) AbsentLiveData()
-        else balanceRepository.loadBalances(it)
-    }
+
+    val balancePairs: LiveData<Resource<List<BalancePair>>> =
+        Transformations.switchMap(converter) {
+            if (it.isNullOrEmpty()) AbsentLiveData()
+            else
+                balanceRepository.loadBalancePairs(it)
+        }
 
     fun setConverter(converter: String) {
-        this.converter.value = converter
+        this.converter.setValueIfNotSame(converter)
+    }
+
+    fun retry() {
+        converter.setSameValueIfNotNullAndNotEmpty()
     }
 }

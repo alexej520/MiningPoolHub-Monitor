@@ -16,7 +16,7 @@ abstract class NetworkBoundResource<ResultT, RequestT>(
     private val result = MediatorLiveData<Resource<ResultT>>()
 
     @MainThread
-    fun load(): LiveData<Resource<ResultT>> {
+    fun liveData(): LiveData<Resource<ResultT>> {
         result.value = Resource(status = LOADING)
         val dbSource = loadFromDb()
         result.addSource(dbSource) { data ->
@@ -35,7 +35,7 @@ abstract class NetworkBoundResource<ResultT, RequestT>(
     private fun fetchFromNetwork(dbSource: LiveData<ResultT>) {
         val apiResponse = createCall()
         result.addSource(dbSource) { newData ->
-            result.setValueIfNotSame(Resource(status = LOADING, data = newData!!))
+            result.setValueIfNotSame(Resource(status = LOADING, data = newData))
         }
         result.addSource(apiResponse) { response ->
             result.removeSource(apiResponse)
@@ -56,7 +56,7 @@ abstract class NetworkBoundResource<ResultT, RequestT>(
                         Resource(
                             status = ERROR,
                             message = response.errorMessage,
-                            data = newData!!
+                            data = newData
                         )
                     )
                 }

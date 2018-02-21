@@ -8,6 +8,7 @@ import com.google.gson.JsonDeserializer
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 import com.google.gson.annotations.JsonAdapter
+import ru.lextop.miningpoolhub.util.asDoubleOrNull
 import java.lang.reflect.Type
 
 @JsonAdapter(Ticker.Deserializer::class)
@@ -55,9 +56,9 @@ data class Ticker(
 
     object Deserializer : JsonDeserializer<Ticker> {
         private fun deserializeStats(jsonObject: JsonObject, symbol: String): Stats {
-            val price = jsonObject["price_$symbol"]?.asString?.toDoubleOrNull()
-            val volume24h = jsonObject["24h_volume_$symbol"]?.asString?.toDoubleOrNull()
-            val marketCap = jsonObject["market_cap_$symbol"]?.asString?.toDoubleOrNull()
+            val price = jsonObject["price_$symbol"]?.asDoubleOrNull
+            val volume24h = jsonObject["24h_volume_$symbol"]?.asDoubleOrNull
+            val marketCap = jsonObject["market_cap_$symbol"]?.asDoubleOrNull
             return Stats(price = price, volume24h = volume24h, marketCap = marketCap)
         }
 
@@ -73,12 +74,12 @@ data class Ticker(
             val rank = jsonObject["rank"].asInt
             val usdStats = deserializeStats(jsonObject, "usd")
             val btcStats = deserializeStats(jsonObject, "btc")
-            val availableSupply = jsonObject["available_supply"].asString.toDoubleOrNull()
-            val totalSupply = jsonObject["total_supply"].asString.toDoubleOrNull()
-            val maxSupply = jsonObject["max_supply"].asString.toDoubleOrNull()
-            val percentChange1h = jsonObject["percent_change_1h"].asString.toDoubleOrNull()
-            val percentChange24h = jsonObject["percent_change_24h"].asString.toDoubleOrNull()
-            val percentChange7d = jsonObject["percent_change_7d"].asString.toDoubleOrNull()
+            val availableSupply = jsonObject["available_supply"].asDoubleOrNull
+            val totalSupply = jsonObject["total_supply"].asDoubleOrNull
+            val maxSupply = jsonObject["max_supply"].asDoubleOrNull
+            val percentChange1h = jsonObject["percent_change_1h"].asDoubleOrNull
+            val percentChange24h = jsonObject["percent_change_24h"].asDoubleOrNull
+            val percentChange7d = jsonObject["percent_change_7d"].asDoubleOrNull
             val lastUpdated = jsonObject["last_updated"].asInt
             val jsonFields = jsonObject.entrySet()
             val marketCaps = jsonFields.filter { it.key.startsWith("market_cap_") }

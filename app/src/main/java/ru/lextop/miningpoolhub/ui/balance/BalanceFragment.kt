@@ -19,7 +19,7 @@ class BalanceFragment : Fragment(), Injectable {
         balanceViewModel =
                 ViewModelProviders.of(activity!!, viewModelFactory)[BalanceViewModel::class.java]
         balanceViewModel.setConverter("RUB")
-        balanceViewModel.balances.observe(this, Observer {
+        balanceViewModel.balancePairs.observe(this, Observer {
             it!!
         })
     }

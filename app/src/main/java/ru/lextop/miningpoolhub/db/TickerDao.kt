@@ -7,10 +7,10 @@ import ru.lextop.miningpoolhub.vo.Ticker
 @Dao
 interface TickerDao {
     @Query("select * from ticker where id=:id")
-    fun getTicker(id: String): LiveData<Ticker?>
+    fun loadTicker(id: String): LiveData<Ticker>
 
     @Query("select * from ticker order by rank asc")
-    fun getTickers(): LiveData<List<Ticker>>
+    fun loadTickers(): LiveData<List<Ticker>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insert(tickers: Ticker)

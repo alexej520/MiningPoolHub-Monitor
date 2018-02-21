@@ -10,7 +10,7 @@ import ru.lextop.miningpoolhub.vo.Balance
 @Dao
 interface BalanceDao {
     @Query("select * from balance order by coin asc")
-    fun getBalances(): LiveData<List<Balance>>
+    fun loadBalances(): LiveData<List<Balance>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insert(balances: List<Balance>)
