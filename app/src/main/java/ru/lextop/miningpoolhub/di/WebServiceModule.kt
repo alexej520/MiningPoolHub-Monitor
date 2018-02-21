@@ -4,24 +4,84 @@ import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import dagger.Module
 import dagger.Provides
-import okhttp3.*
+import okhttp3.Interceptor
+import okhttp3.OkHttpClient
+import okhttp3.Response
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
-import ru.lextop.miningpoolhub.api.ApiResponse
-import ru.lextop.miningpoolhub.api.MiningpoolhubApi
-import ru.lextop.miningpoolhub.api.MiningpoolhubApiResponseDeserializer
+import ru.lextop.miningpoolhub.api.*
 import ru.lextop.miningpoolhub.preferences.PrivateAppPreferences
 import ru.lextop.miningpoolhub.util.LiveDataCallAdapterFactory
-import javax.inject.Named
 import javax.inject.Singleton
 
 @Module
-class MiningpoolhubModule {
-    @Named(INTERCEPTOR_ROUTE)
+class WebServiceModule {
+
+
+    // CoinmarketcapApi
+
+
+    @Coinmarketcap(INTERCEPTOR_LOGGING)
     @Provides
     @Singleton
-    fun provideRouteInterceptor(): Interceptor? {
+    fun provideCoinmarketcapLoggingInterceptor(): Interceptor? {
+        val interceptor = HttpLoggingInterceptor()
+        interceptor.level = HttpLoggingInterceptor.Level.BODY
+        return interceptor
+    }
+
+    @Coinmarketcap
+    @Provides
+    @Singleton
+    fun provideCoinmarketcapOkHttpClient(
+        @Coinmarketcap(INTERCEPTOR_LOGGING) loggingInterceptor: Interceptor?
+    ): OkHttpClient {
+        val builder = OkHttpClient.Builder()
+        loggingInterceptor?.let { builder.addInterceptor(it) }
+        return builder.build()
+    }
+
+    @Coinmarketcap
+    @Provides
+    @Singleton
+    fun provideCoinmarketcapGson(): Gson {
+        return GsonBuilder()
+            .registerTypeAdapter(ApiResponse::class.java, CoinmarketcapApiResponseDeserializer)
+            .create()
+    }
+
+    @Coinmarketcap
+    @Provides
+    @Singleton
+    fun provideCoinmarketcapRetrofit(
+        @Coinmarketcap client: OkHttpClient,
+        @Coinmarketcap gson: Gson
+    ): Retrofit {
+        return Retrofit.Builder()
+            .client(client)
+            .baseUrl("https://api.coinmarketcap.com/v1/")
+            .addConverterFactory(GsonConverterFactory.create(gson))
+            .addCallAdapterFactory(LiveDataCallAdapterFactory())
+            .build()
+    }
+
+    @Provides
+    @Singleton
+    fun provideCoinmarketcapApi(
+        @Coinmarketcap retrofit: Retrofit
+    ): CoinmarketcapApi {
+        return retrofit.create(CoinmarketcapApi::class.java)
+    }
+
+
+    // MiningpoolhubApi
+
+
+    @Miningpoolhub(INTERCEPTOR_ROUTE)
+    @Provides
+    @Singleton
+    fun provideMiningpoolhubRouteInterceptor(): Interceptor? {
         return object : Interceptor {
             private val pattern =
                 """^https://(.+?)${MiningpoolhubApi.QUERY_POOL}=([^&]*)&?(.*)""".toPattern()
@@ -46,19 +106,19 @@ class MiningpoolhubModule {
         }
     }
 
-    @Named(INTERCEPTOR_LOGGING)
+    @Miningpoolhub(INTERCEPTOR_LOGGING)
     @Provides
     @Singleton
-    fun provideLoggingInterceptor(): Interceptor? {
+    fun provideMiningpoolhubLoggingInterceptor(): Interceptor? {
         val interceptor = HttpLoggingInterceptor()
         interceptor.level = HttpLoggingInterceptor.Level.BODY
         return interceptor
     }
 
-    @Named(INTERCEPTOR_ADD_API_KEY)
+    @Miningpoolhub(INTERCEPTOR_ADD_API_KEY)
     @Provides
     @Singleton
-    fun provideApiKeyInterceptor(
+    fun provideMiningpoolhubApiKeyInterceptor(
         privateAppPreferences: PrivateAppPreferences
     ): Interceptor {
         return Interceptor { chain ->
@@ -77,12 +137,13 @@ class MiningpoolhubModule {
         }
     }
 
+    @Miningpoolhub
     @Provides
     @Singleton
-    fun provideOkHttpClient(
-        @Named(INTERCEPTOR_ROUTE) routeInterceptor: Interceptor?,
-        @Named(INTERCEPTOR_ADD_API_KEY) accessTokenInterceptor: Interceptor,
-        @Named(INTERCEPTOR_LOGGING) loggingInterceptor: Interceptor?
+    fun provideMiningpoolhubOkHttpClient(
+        @Miningpoolhub(INTERCEPTOR_ROUTE) routeInterceptor: Interceptor?,
+        @Miningpoolhub(INTERCEPTOR_ADD_API_KEY) accessTokenInterceptor: Interceptor,
+        @Miningpoolhub(INTERCEPTOR_LOGGING) loggingInterceptor: Interceptor?
     ): OkHttpClient {
         val builder = OkHttpClient.Builder()
         routeInterceptor?.let { builder.addInterceptor(it) }
@@ -91,17 +152,22 @@ class MiningpoolhubModule {
         return builder.build()
     }
 
+    @Miningpoolhub
     @Provides
     @Singleton
-    fun provideGson(): Gson {
+    fun provideMiningpoolhubGson(): Gson {
         return GsonBuilder()
             .registerTypeAdapter(ApiResponse::class.java, MiningpoolhubApiResponseDeserializer)
             .create()
     }
 
+    @Miningpoolhub
     @Provides
     @Singleton
-    fun provideRetrofit(client: OkHttpClient, gson: Gson): Retrofit {
+    fun provideMiningpoolhubRetrofit(
+        @Miningpoolhub client: OkHttpClient,
+        @Miningpoolhub gson: Gson
+    ): Retrofit {
         return Retrofit.Builder()
             .client(client)
             .baseUrl("https://miningpoolhub.com")
@@ -110,9 +176,17 @@ class MiningpoolhubModule {
             .build()
     }
 
+    @Provides
+    @Singleton
+    fun provideMiningpoolhubApi(
+        @Miningpoolhub retrofit: Retrofit
+    ): MiningpoolhubApi {
+        return retrofit.create(MiningpoolhubApi::class.java)
+    }
+
     companion object {
-        const val INTERCEPTOR_ROUTE = "miningpoolhub_route"
-        const val INTERCEPTOR_LOGGING = "miningpoolhub_logging"
-        const val INTERCEPTOR_ADD_API_KEY = "miningpoolhub_addAccessToken"
+        const val INTERCEPTOR_ROUTE = "route"
+        const val INTERCEPTOR_LOGGING = "logging"
+        const val INTERCEPTOR_ADD_API_KEY = "addAccessToken"
     }
 }

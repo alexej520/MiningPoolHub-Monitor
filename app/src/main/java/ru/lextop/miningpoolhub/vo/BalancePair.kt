@@ -2,18 +2,13 @@ package ru.lextop.miningpoolhub.vo
 
 data class BalancePair(
     val current: Balance,
-    val ticker: Ticker
-) {
-    val converted: Balance
+    val converted: Resource<Balance>
+)
 
-    init {
-        val price = ticker.otherStats.price ?: Double.NaN
-        converted = current.copy(
-            confirmed = price * current.confirmed,
-            unconfirmed = price * current.unconfirmed,
-            autoExchangeConfirmed = price * current.autoExchangeConfirmed,
-            autoExchangeUnconfirmed = price * current.autoExchangeUnconfirmed,
-            onExchange = price * current.onExchange
-        )
-    }
-}
+operator fun Balance.times(factor: Double) = copy(
+    confirmed = factor * confirmed,
+    unconfirmed = factor * unconfirmed,
+    autoExchangeConfirmed = factor * autoExchangeConfirmed,
+    autoExchangeUnconfirmed = factor * autoExchangeUnconfirmed,
+    onExchange = factor * onExchange
+)

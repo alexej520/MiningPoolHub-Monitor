@@ -1,5 +1,6 @@
 package ru.lextop.miningpoolhub.ui.balance
 
+import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProvider
 import android.arch.lifecycle.ViewModelProviders
 import android.os.Bundle
@@ -15,6 +16,11 @@ class BalanceFragment : Fragment(), Injectable {
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
-        balanceViewModel = ViewModelProviders.of(activity!!)[BalanceViewModel::class.java]
+        balanceViewModel =
+                ViewModelProviders.of(activity!!, viewModelFactory)[BalanceViewModel::class.java]
+        balanceViewModel.setConverter("RUB")
+        balanceViewModel.balances.observe(this, Observer {
+            it!!
+        })
     }
 }

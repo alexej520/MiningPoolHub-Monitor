@@ -12,8 +12,7 @@ import javax.inject.Singleton
 
 @Module(
     includes = [
-        ViewModelModule::class,
-        CoinmarketcapModule::class
+        ViewModelModule::class
     ]
 )
 class AppModule {

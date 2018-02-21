@@ -14,4 +14,7 @@ interface BalanceDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insert(balances: List<Balance>)
+
+    @Query("delete from balance")
+    fun clean()
 }
