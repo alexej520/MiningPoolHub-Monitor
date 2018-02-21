@@ -24,4 +24,7 @@ data class Balance(
     @SerializedName("exchange")
     @ColumnInfo(name = "exchange")
     val onExchange: Double
-)
+) {
+    val total: Double get() =
+        confirmed + unconfirmed + autoExchangeConfirmed + autoExchangeUnconfirmed + onExchange
+}

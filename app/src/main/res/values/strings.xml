@@ -1,4 +1,7 @@
 <resources>
     <string name="app_name">MiningPoolHub</string>
     <string name="preference_key_private_miningpoolhubApiKey" translatable="false">miningpoolhubApiKey</string>
+    <string name="balance_normal_title">Normal</string>
+    <string name="balance_autoexchange_title">Auto Exchange</string>
+    <string name="balance_onexchange_title">On Exchange</string>
 </resources>

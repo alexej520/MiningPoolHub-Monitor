@@ -14,12 +14,8 @@ import java.lang.reflect.Type
 @JsonAdapter(Ticker.Deserializer::class)
 @Entity(primaryKeys = ["id"], tableName = "ticker")
 data class Ticker(
-    @ColumnInfo(name = "id")
-    val id: String,
-    @ColumnInfo(name = "name")
-    val name: String,
-    @ColumnInfo(name = "symbol")
-    val symbol: String,
+    @Embedded
+    val currency: Currency,
     @ColumnInfo(name = "rank")
     val rank: Int,
     @Embedded(prefix = "usd")
@@ -68,9 +64,7 @@ data class Ticker(
             context: JsonDeserializationContext
         ): Ticker {
             val jsonObject = json.asJsonObject
-            val id = jsonObject["id"].asString
-            val name = jsonObject["name"].asString
-            val symbol = jsonObject["symbol"].asString
+            val currency = context.deserialize<Currency>(jsonObject, Currency::class.java)
             val rank = jsonObject["rank"].asInt
             val usdStats = deserializeStats(jsonObject, "usd")
             val btcStats = deserializeStats(jsonObject, "btc")
@@ -83,19 +77,18 @@ data class Ticker(
             val lastUpdated = jsonObject["last_updated"].asInt
             val jsonFields = jsonObject.entrySet()
             val marketCaps = jsonFields.filter { it.key.startsWith("market_cap_") }
-            val otherSymbol = marketCaps
+            val otherStatsSuffix = marketCaps
                 .firstOrNull { it.key != "market_cap_usd" }
                 ?.key
                 ?.removePrefix("market_cap_")
-            val otherStats = when (otherSymbol) {
+            val otherStats = when (otherStatsSuffix) {
                 null -> usdStats
                 "btc" -> btcStats
-                else -> deserializeStats(jsonObject, otherSymbol)
+                else -> deserializeStats(jsonObject, otherStatsSuffix)
             }
+            val otherSymbol = otherStatsSuffix?.toUpperCase() ?: "USD"
             return Ticker(
-                id = id,
-                name = name,
-                symbol = symbol,
+                currency = currency,
                 rank = rank,
                 usdStats = usdStats,
                 btcStats = btcStats,
@@ -106,7 +99,7 @@ data class Ticker(
                 percentChange24h = percentChange24h,
                 percentChange7d = percentChange7d,
                 lastUpdated = lastUpdated,
-                otherSymbol = otherSymbol ?: "usd",
+                otherSymbol = otherSymbol,
                 otherStats = otherStats
             )
         }

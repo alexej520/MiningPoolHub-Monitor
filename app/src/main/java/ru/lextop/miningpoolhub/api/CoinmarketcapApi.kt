@@ -64,6 +64,7 @@ interface CoinmarketcapApi {
         const val CONVERT_THB = "THB"
         const val CONVERT_TRY = "TRY"
         const val CONVERT_TWD = "TWD"
+        const val CONVERT_USD = "USD"
         const val CONVERT_ZAR = "ZAR"
 
         fun coinImageUrl(id: String, size: String): String {

@@ -15,7 +15,9 @@ class DbModule {
     @Provides
     @Singleton
     fun provideDb(@Named(AppModule.CONTEXT_APPLICATION) context: Context): AppDatabase {
-        return Room.databaseBuilder(context, AppDatabase::class.java, "app.db").build()
+        return Room.databaseBuilder(context, AppDatabase::class.java, "app.db")
+            .addCallback(AppDatabase.OnCreateCallback)
+            .build()
     }
 
     @Provides
