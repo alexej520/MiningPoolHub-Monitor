@@ -6,6 +6,9 @@ import android.arch.lifecycle.ViewModelProviders
 import android.databinding.ViewDataBinding
 import android.os.Bundle
 import android.support.v4.app.Fragment
+import android.support.v4.widget.SwipeRefreshLayout
+import android.support.v7.widget.DividerItemDecoration
+import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
@@ -20,6 +23,7 @@ import ru.lextop.miningpoolhub.ui.common.DataBoundViewHolderFactory
 import ru.lextop.miningpoolhub.ui.common.SimpleFactoryAdapter
 import ru.lextop.miningpoolhub.vo.Balance
 import ru.lextop.miningpoolhub.vo.BalancePair
+import ru.lextop.miningpoolhub.vo.Status
 import javax.inject.Inject
 
 class BalanceFragment : Fragment(), Injectable {
@@ -32,13 +36,22 @@ class BalanceFragment : Fragment(), Injectable {
 
     lateinit var adapter: SimpleFactoryAdapter<Balance>
 
+    lateinit var refreshLayout: SwipeRefreshLayout
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
         val view = inflater.inflate(R.layout.fragment_balance, container, false)
+        refreshLayout = view.findViewById(R.id.balance_refresh)
+        refreshLayout.setOnRefreshListener {
+            balanceViewModel.retry()
+
+        }
+
         val balances = view.findViewById<RecyclerView>(R.id.balance_balances)
+        balances.addItemDecoration(DividerItemDecoration(context, LinearLayoutManager.VERTICAL))
 
         adapter = object : SimpleFactoryAdapter<Balance>(
             object : DataBoundViewHolderFactory<Balance, ItemBalanceBinding>(
@@ -74,7 +87,15 @@ class BalanceFragment : Fragment(), Injectable {
         balanceViewModel.setConverter("RUB")
 
         balanceViewModel.balancePairs.observe(this, Observer {
-            adapter.items = it?.data?.mapNotNull { it.current }
+            adapter.items = it?.data?.mapNotNull { it.current } ?: return@Observer
+        })
+
+        balanceViewModel.balancePairs.observe(this, Observer {
+                val refreshing = refreshLayout.isRefreshing
+            val newRefreshing = it?.status == Status.LOADING
+            if (refreshing != newRefreshing) {
+                refreshLayout.isRefreshing = newRefreshing
+            }
         })
     }
 }
