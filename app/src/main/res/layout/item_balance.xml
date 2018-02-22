@@ -8,7 +8,11 @@
     <data>
 
         <variable
-            name="current"
+            name="currency"
+            type="ru.lextop.miningpoolhub.vo.Currency"/>
+
+        <variable
+            name="balance"
             type="ru.lextop.miningpoolhub.vo.Balance" />
     </data>
 
@@ -25,7 +29,7 @@
             android:scaleType="fitCenter"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            bind:coinImg="@{current.currency.symbol}" />
+            bind:imgUrl="@{`file:///android_asset/currency/` + currency.symbol.toLowerCase() + `.png`}" />
 
         <TextView
             android:id="@+id/balance_coin"
@@ -38,7 +42,7 @@
             android:ellipsize="end"
             android:maxLines="1"
             android:singleLine="true"
-            android:text="@{String.valueOf(current.currency.symbol)}"
+            android:text="@{currency.symbol}"
             android:textAppearance="@style/TextAppearance.AppCompat.Body2"
             app:layout_constraintBottom_toBottomOf="@+id/balance_coin_image"
             app:layout_constraintEnd_toStartOf="@+id/guideline"
@@ -55,7 +59,7 @@
             android:ellipsize="end"
             android:maxLines="1"
             android:singleLine="true"
-            android:text="@{String.valueOf(current.confirmed)}"
+            android:text="@{String.valueOf(balance.confirmed)}"
             android:textAppearance="@style/TextAppearance.AppCompat.Body1"
             app:layout_constraintBottom_toTopOf="@+id/balance_normal_unconfirmed"
             app:layout_constraintEnd_toEndOf="@+id/balance_normal_title"
@@ -73,7 +77,7 @@
             android:ellipsize="end"
             android:maxLines="1"
             android:singleLine="true"
-            android:text="@{String.valueOf(current.unconfirmed)}"
+            android:text="@{String.valueOf(balance.unconfirmed)}"
             android:textAppearance="@style/TextAppearance.AppCompat.Caption"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="@+id/balance_normal_confirmed"
@@ -89,7 +93,7 @@
             android:ellipsize="end"
             android:maxLines="1"
             android:singleLine="true"
-            android:text="@{String.valueOf(current.autoExchangeConfirmed)}"
+            android:text="@{String.valueOf(balance.autoExchangeConfirmed)}"
             android:textAppearance="@style/TextAppearance.AppCompat.Body1"
             app:layout_constraintBaseline_toBaselineOf="@+id/balance_normal_confirmed"
             app:layout_constraintEnd_toEndOf="@+id/balance_normal_autoexchange_title"
@@ -104,7 +108,7 @@
             android:ellipsize="end"
             android:maxLines="1"
             android:singleLine="true"
-            android:text="@{String.valueOf(current.autoExchangeUnconfirmed)}"
+            android:text="@{String.valueOf(balance.autoExchangeUnconfirmed)}"
             android:textAppearance="@style/TextAppearance.AppCompat.Caption"
             app:layout_constraintBaseline_toBaselineOf="@+id/balance_normal_unconfirmed"
             app:layout_constraintEnd_toEndOf="@+id/balance_autoexchange_confirmed"
@@ -119,7 +123,7 @@
             android:ellipsize="end"
             android:maxLines="1"
             android:singleLine="true"
-            android:text="@{String.valueOf(current.onExchange)}"
+            android:text="@{String.valueOf(balance.onExchange)}"
             android:textAppearance="@style/TextAppearance.AppCompat.Body1"
             app:layout_constraintBaseline_toBaselineOf="@+id/balance_autoexchange_confirmed"
             app:layout_constraintEnd_toEndOf="@+id/balance_normal_onexchange_title"
@@ -135,7 +139,7 @@
             android:ellipsize="end"
             android:maxLines="1"
             android:singleLine="true"
-            android:text="@{String.valueOf(current.total)}"
+            android:text="@{String.valueOf(balance.total)}"
             android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
             app:layout_constraintBottom_toBottomOf="@+id/balance_coin_image"
             app:layout_constraintEnd_toEndOf="parent"
@@ -214,7 +218,7 @@
             android:ellipsize="end"
             android:maxLines="1"
             android:singleLine="true"
-            android:text="@{current.currency.name}"
+            android:text="@{currency.name ?? balance.coin}"
             android:textAppearance="@style/TextAppearance.AppCompat.Body1"
             app:layout_constraintEnd_toStartOf="@+id/guideline"
             app:layout_constraintStart_toEndOf="@+id/balance_coin_image"

@@ -2,12 +2,19 @@ package ru.lextop.miningpoolhub.databinding
 
 import android.databinding.BindingAdapter
 import android.widget.ImageView
+import android.widget.TextView
 import com.bumptech.glide.Glide
+import java.text.DecimalFormat
 
-@BindingAdapter("coinImg")
-fun coinImg(imageView: ImageView, coin: String?) {
-    if (coin == null) return
+@BindingAdapter("imgUrl")
+fun imgUrl(imageView: ImageView, url: String?) {
+    if (url == null) return
     Glide.with(imageView)
-        .load("file:///android_asset/currency/${coin.toLowerCase()}.png")
+        .load(url)
         .into(imageView)
+}
+
+@BindingAdapter("balance")
+fun balance(textView: TextView, balance: Double) {
+    DecimalFormat("")
 }

@@ -75,7 +75,8 @@ class BalanceRepository @Inject constructor(
                     override fun onActive() {
                         appExecutors.diskIO.execute {
                             val ticker = tickerDao.loadTickerById(coin)?.apply {
-                                convertedCurrency = currencyDao.loadCurrencyBySymbol(convertedSymbol)
+                                convertedCurrency =
+                                        currencyDao.loadCurrencyBySymbol(convertedSymbol)
                             }
                             postValue(ticker)
                         }
@@ -128,11 +129,17 @@ class BalanceRepository @Inject constructor(
                                 val oldValue = mediatorLiveData.value
                                 val newData = oldValue?.data?.map {
                                     if (it.current.coin == coin) {
+                                        val ticker = tickerResource.data
                                         val converted =
-                                            it.current * (tickerResource.data?.convertedStats?.price
-                                                    ?: Double.NaN)
-                                        converted.currency = tickerResource.data?.convertedCurrency
-                                        it.copy(
+                                            it.current * (ticker?.convertedStats?.price ?: Double.NaN)
+                                        converted.currency = ticker?.convertedCurrency
+                                        var current = it.current
+                                        if (current.currency == null) {
+                                            current = current.copy()
+                                            current.currency = ticker?.currency
+                                        }
+                                        BalancePair(
+                                            current = current,
                                             converted = Resource(
                                                 status = tickerResource.status,
                                                 message = tickerResource.message,
