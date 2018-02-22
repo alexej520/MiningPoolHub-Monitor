@@ -11,12 +11,14 @@ import javax.inject.Singleton
 class AppExecutors(
     val diskIO: Executor,
     val networkIO: Executor,
-    val mainThread: Executor
+    val mainThread: Executor,
+    val workingThread: Executor
 ) {
      @Inject constructor() : this (
          diskIO = Executors.newSingleThreadExecutor(),
          networkIO = Executors.newFixedThreadPool(3),
-         mainThread = MainThreadExecutor()
+         mainThread = MainThreadExecutor(),
+         workingThread = Executors.newFixedThreadPool(3)
      )
 
     private class MainThreadExecutor : Executor {

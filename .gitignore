@@ -5,4 +5,6 @@
 .DS_Store
 /build
 /captures
+app/schemas
+app/src/main/assets/currency
 .externalNativeBuild

@@ -74,10 +74,9 @@ class BalanceRepository @Inject constructor(
                 return object : LiveData<Ticker>() {
                     override fun onActive() {
                         appExecutors.diskIO.execute {
-                            val ticker = tickerDao.loadTickerById(coin)
-                            val convertedCurrency =
-                                currencyDao.loadCurrencyBySymbol(ticker.convertedSymbol)
-                            ticker?.convertedCurrency = convertedCurrency
+                            val ticker = tickerDao.loadTickerById(coin)?.apply {
+                                convertedCurrency = currencyDao.loadCurrencyBySymbol(convertedSymbol)
+                            }
                             postValue(ticker)
                         }
                     }

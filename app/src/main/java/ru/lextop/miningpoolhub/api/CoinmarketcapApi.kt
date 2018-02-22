@@ -66,14 +66,5 @@ interface CoinmarketcapApi {
         const val CONVERT_TWD = "TWD"
         const val CONVERT_USD = "USD"
         const val CONVERT_ZAR = "ZAR"
-
-        fun coinImageUrl(id: String, size: String): String {
-            return "https://files.coinmarketcap.com/static/img/coins/$size/$id.png"
-        }
-
-        const val SIZE_16x16 = "16x16"
-        const val SIZE_32x32 = "32x32"
-        const val SIZE_64x64 = "64x64"
-        const val SIZE_128x128 = "128x128"
     }
 }
