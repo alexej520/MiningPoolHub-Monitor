@@ -3,6 +3,7 @@ package ru.lextop.miningpoolhub.vo
 import android.arch.persistence.room.ColumnInfo
 import android.arch.persistence.room.Embedded
 import android.arch.persistence.room.Entity
+import android.arch.persistence.room.Ignore
 import com.google.gson.JsonDeserializationContext
 import com.google.gson.JsonDeserializer
 import com.google.gson.JsonElement
@@ -36,11 +37,14 @@ data class Ticker(
     val percentChange7d: Double?,
     @ColumnInfo(name = "last_updated")
     val lastUpdated: Int,
-    @ColumnInfo(name = "other_symbol")
-    val otherSymbol: String,
-    @Embedded(prefix = "other")
-    val otherStats: Ticker.Stats
+    @ColumnInfo(name = "converted_symbol")
+    val convertedSymbol: String,
+    @Embedded(prefix = "converted")
+    val convertedStats: Ticker.Stats
 ) {
+    @Ignore
+    var convertedCurrency: Currency? = null
+
     data class Stats(
         @ColumnInfo(name = "price")
         val price: Double?,
@@ -99,8 +103,8 @@ data class Ticker(
                 percentChange24h = percentChange24h,
                 percentChange7d = percentChange7d,
                 lastUpdated = lastUpdated,
-                otherSymbol = otherSymbol,
-                otherStats = otherStats
+                convertedSymbol = otherSymbol,
+                convertedStats = otherStats
             )
         }
     }

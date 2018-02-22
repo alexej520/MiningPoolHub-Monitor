@@ -7,7 +7,7 @@ import ru.lextop.miningpoolhub.vo.Ticker
 @Dao
 interface TickerDao {
     @Query("select * from ticker where id=:id")
-    fun loadTicker(id: String): LiveData<Ticker>
+    fun loadTickerById(id: String): Ticker?
 
     @Query("select * from ticker order by rank asc")
     fun loadTickers(): LiveData<List<Ticker>>

@@ -2,16 +2,14 @@ package ru.lextop.miningpoolhub.repository
 
 import android.arch.lifecycle.LiveData
 import android.arch.lifecycle.MediatorLiveData
-import android.arch.lifecycle.Transformations
 import ru.lextop.miningpoolhub.AppExecutors
 import ru.lextop.miningpoolhub.api.ApiResponse
 import ru.lextop.miningpoolhub.api.CoinmarketcapApi
 import ru.lextop.miningpoolhub.api.MiningpoolhubApi
 import ru.lextop.miningpoolhub.db.AppDatabase
 import ru.lextop.miningpoolhub.db.BalanceDao
+import ru.lextop.miningpoolhub.db.CurrencyDao
 import ru.lextop.miningpoolhub.db.TickerDao
-import ru.lextop.miningpoolhub.util.AbsentLiveData
-import ru.lextop.miningpoolhub.util.SingletonLiveData
 import ru.lextop.miningpoolhub.vo.*
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -22,6 +20,7 @@ class BalanceRepository @Inject constructor(
     private val appExecutors: AppExecutors,
     private val balanceDao: BalanceDao,
     private val tickerDao: TickerDao,
+    private val currencyDao: CurrencyDao,
     private val miningpoolhubApi: MiningpoolhubApi,
     private val coinmarketcapApi: CoinmarketcapApi
 ) {
@@ -39,7 +38,20 @@ class BalanceRepository @Inject constructor(
             }
 
             override fun loadFromDb(): LiveData<List<Balance>> {
-                return balanceDao.loadBalances()
+                return object : LiveData<List<Balance>>() {
+                    override fun onActive() {
+                        appExecutors.diskIO.execute {
+                            val balances = balanceDao.loadBalances()
+                            val currencies = currencyDao
+                                .loadCurrenciesByIds(balances.map { it.coin })
+                                .associateBy { it.id }
+                            balances.forEach {
+                                it.currency = currencies[it.coin]
+                            }
+                            postValue(balances)
+                        }
+                    }
+                }
             }
 
             override fun createCall(): LiveData<ApiResponse<List<Balance>>> {
@@ -51,6 +63,7 @@ class BalanceRepository @Inject constructor(
         object : NetworkBoundResource<Ticker, List<Ticker>>(appExecutors) {
             override fun saveCallResult(body: List<Ticker>) {
                 tickerDao.insert(body)
+                currencyDao.insert(body.map { it.currency })
             }
 
             override fun shouldFetch(data: Ticker?): Boolean {
@@ -58,7 +71,17 @@ class BalanceRepository @Inject constructor(
             }
 
             override fun loadFromDb(): LiveData<Ticker> {
-                return tickerDao.loadTicker(coin)
+                return object : LiveData<Ticker>() {
+                    override fun onActive() {
+                        appExecutors.diskIO.execute {
+                            val ticker = tickerDao.loadTickerById(coin)
+                            val convertedCurrency =
+                                currencyDao.loadCurrencyBySymbol(ticker.convertedSymbol)
+                            ticker?.convertedCurrency = convertedCurrency
+                            postValue(ticker)
+                        }
+                    }
+                }
             }
 
             override fun createCall(): LiveData<ApiResponse<List<Ticker>>> {
@@ -106,12 +129,15 @@ class BalanceRepository @Inject constructor(
                                 val oldValue = mediatorLiveData.value
                                 val newData = oldValue?.data?.map {
                                     if (it.current.coin == coin) {
+                                        val converted =
+                                            it.current * (tickerResource.data?.convertedStats?.price
+                                                    ?: Double.NaN)
+                                        converted.currency = tickerResource.data?.convertedCurrency
                                         it.copy(
                                             converted = Resource(
                                                 status = tickerResource.status,
                                                 message = tickerResource.message,
-                                                data = it.current * (tickerResource.data?.otherStats?.price
-                                                        ?: Double.NaN)
+                                                data = converted
                                             )
                                         )
                                     } else {

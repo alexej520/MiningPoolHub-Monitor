@@ -2,6 +2,7 @@ package ru.lextop.miningpoolhub.vo
 
 import android.arch.persistence.room.ColumnInfo
 import android.arch.persistence.room.Entity
+import android.arch.persistence.room.Ignore
 import com.google.gson.annotations.SerializedName
 
 @Entity(primaryKeys = ["coin"], tableName = "balance")
@@ -27,4 +28,6 @@ data class Balance(
 ) {
     val total: Double get() =
         confirmed + unconfirmed + autoExchangeConfirmed + autoExchangeUnconfirmed + onExchange
+    @Ignore
+    var currency: Currency? = null
 }
