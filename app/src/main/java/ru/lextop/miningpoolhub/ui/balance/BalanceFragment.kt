@@ -43,50 +43,15 @@ class BalanceFragment : Fragment(), Injectable {
     ): View? {
         binding = DataBindingUtil.inflate(inflater, R.layout.fragment_balance, container, false)
         binding.setLifecycleOwner(this)
-        val view = binding.root
         binding.balanceRefresh.setOnRefreshListener {
             balanceViewModel.retry()
         }
+        adapter = BalanceAdapter(appExecutors)
 
-        val balances = view.findViewById<RecyclerView>(R.id.balance_balances)
+        val balances = binding.balanceBalances
         balances.addItemDecoration(DividerItemDecoration(context, LinearLayoutManager.VERTICAL))
-
-        adapter = object : SimpleFactoryAdapter<BalanceItemViewModel>(
-            object : DataBoundViewHolderFactory<BalanceItemViewModel, ItemBalanceBinding>(
-                R.layout.item_balance,
-                itemKClass = BalanceItemViewModel::class
-            ) {
-                override fun bindViewHolder(
-                    holder: DataBoundViewHolder<ItemBalanceBinding>,
-                    item: BalanceItemViewModel
-                ) {
-                    holder.binding.currency = item.currency
-                    holder.binding.balance = item.balance
-                }
-            },
-            appExecutors
-        ) {
-            override fun areItemsTheSame(
-                item1: BalanceItemViewModel,
-                item2: BalanceItemViewModel
-            ): Boolean {
-                val result = item1.id == item2.id
-                if (!result) println("${item1.id} != ${item2.id}")
-                return result
-            }
-
-            override fun areContentsTheSame(
-                item1: BalanceItemViewModel,
-                item2: BalanceItemViewModel
-            ): Boolean {
-                val result = item1 == item2
-                if (!result) println("$item1 != $item2")
-                return result
-            }
-        }
-
         balances.adapter = adapter
-        return view
+        return binding.root
     }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {

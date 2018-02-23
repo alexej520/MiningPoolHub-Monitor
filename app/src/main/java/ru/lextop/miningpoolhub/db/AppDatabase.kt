@@ -8,17 +8,20 @@ import android.database.sqlite.SQLiteDatabase
 import ru.lextop.miningpoolhub.util.ContentValues
 import ru.lextop.miningpoolhub.vo.Balance
 import ru.lextop.miningpoolhub.vo.Currency
+import ru.lextop.miningpoolhub.vo.Login
 import ru.lextop.miningpoolhub.vo.Ticker
 
 @Database(
     version = 1, entities = [
         Ticker::class,
         Balance::class,
-        Currency::class
+        Currency::class,
+        Login::class
     ]
 )
 abstract class AppDatabase : RoomDatabase() {
     abstract fun balanceDao(): BalanceDao
+    abstract fun loginDao(): LoginDao
 
     object OnCreateCallback : RoomDatabase.Callback() {
         override fun onCreate(db: SupportSQLiteDatabase) {
