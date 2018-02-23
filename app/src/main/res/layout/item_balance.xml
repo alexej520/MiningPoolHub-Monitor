@@ -7,6 +7,8 @@
 
     <data>
 
+        <import type="ru.lextop.miningpoolhub.ui.balance.BalanceItemViewModel" alias="VM"/>
+
         <variable
             name="currency"
             type="ru.lextop.miningpoolhub.vo.Currency"/>
@@ -59,7 +61,7 @@
             android:ellipsize="end"
             android:maxLines="1"
             android:singleLine="true"
-            android:text="@{String.valueOf(balance.confirmed)}"
+            android:text="@{VM.formatBalance(balance.confirmed)}"
             android:textAppearance="@style/TextAppearance.AppCompat.Body1"
             app:layout_constraintBottom_toTopOf="@+id/balance_normal_unconfirmed"
             app:layout_constraintEnd_toEndOf="@+id/balance_normal_title"
@@ -77,7 +79,7 @@
             android:ellipsize="end"
             android:maxLines="1"
             android:singleLine="true"
-            android:text="@{String.valueOf(balance.unconfirmed)}"
+            android:text="@{VM.formatBalance(balance.unconfirmed)}"
             android:textAppearance="@style/TextAppearance.AppCompat.Caption"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="@+id/balance_normal_confirmed"
@@ -93,7 +95,7 @@
             android:ellipsize="end"
             android:maxLines="1"
             android:singleLine="true"
-            android:text="@{String.valueOf(balance.autoExchangeConfirmed)}"
+            android:text="@{VM.formatBalance(balance.autoExchangeConfirmed)}"
             android:textAppearance="@style/TextAppearance.AppCompat.Body1"
             app:layout_constraintBaseline_toBaselineOf="@+id/balance_normal_confirmed"
             app:layout_constraintEnd_toEndOf="@+id/balance_normal_autoexchange_title"
@@ -108,7 +110,7 @@
             android:ellipsize="end"
             android:maxLines="1"
             android:singleLine="true"
-            android:text="@{String.valueOf(balance.autoExchangeUnconfirmed)}"
+            android:text="@{VM.formatBalance(balance.autoExchangeUnconfirmed)}"
             android:textAppearance="@style/TextAppearance.AppCompat.Caption"
             app:layout_constraintBaseline_toBaselineOf="@+id/balance_normal_unconfirmed"
             app:layout_constraintEnd_toEndOf="@+id/balance_autoexchange_confirmed"
@@ -123,7 +125,7 @@
             android:ellipsize="end"
             android:maxLines="1"
             android:singleLine="true"
-            android:text="@{String.valueOf(balance.onExchange)}"
+            android:text="@{VM.formatBalance(balance.onExchange)}"
             android:textAppearance="@style/TextAppearance.AppCompat.Body1"
             app:layout_constraintBaseline_toBaselineOf="@+id/balance_autoexchange_confirmed"
             app:layout_constraintEnd_toEndOf="@+id/balance_normal_onexchange_title"
@@ -139,7 +141,7 @@
             android:ellipsize="end"
             android:maxLines="1"
             android:singleLine="true"
-            android:text="@{String.valueOf(balance.total)}"
+            android:text="@{VM.formatBalance(balance.total)}"
             android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
             app:layout_constraintBottom_toBottomOf="@+id/balance_coin_image"
             app:layout_constraintEnd_toEndOf="parent"

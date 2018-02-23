@@ -8,6 +8,7 @@ import ru.lextop.miningpoolhub.util.setSameValueIfNotNullAndNotEmpty
 import ru.lextop.miningpoolhub.util.setValueIfNotSame
 import ru.lextop.miningpoolhub.vo.BalancePair
 import ru.lextop.miningpoolhub.vo.Resource
+import ru.lextop.miningpoolhub.vo.Status
 import javax.inject.Inject
 
 class BalanceViewModel @Inject constructor(
@@ -41,10 +42,13 @@ class BalanceViewModel @Inject constructor(
         balancePairs: Resource<List<BalancePair>>?,
         isConverted: Boolean
     ) {
-
         (balances as MutableLiveData).value = balancePairs?.let {
-            Resource(status = it.status, message = it.message, data = if (isConverted) {
+            var status = it.status
+            val newData = if (isConverted) {
                 it.data?.map {
+                    if (it.converted.status != Status.SUCCESS) {
+                        status = it.converted.status
+                    }
                     BalanceItemViewModel(
                         it.current.coin,
                         it.current.currency,
@@ -59,7 +63,8 @@ class BalanceViewModel @Inject constructor(
                         it.current
                     )
                 }
-            })
+            }
+            Resource(status = status, message = it.message, data = newData)
         }
     }
 

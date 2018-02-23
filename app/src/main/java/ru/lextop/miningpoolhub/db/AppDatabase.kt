@@ -18,9 +18,7 @@ import ru.lextop.miningpoolhub.vo.Ticker
     ]
 )
 abstract class AppDatabase : RoomDatabase() {
-    abstract fun tickerDao(): TickerDao
     abstract fun balanceDao(): BalanceDao
-    abstract fun currencyDao(): CurrencyDao
 
     object OnCreateCallback : RoomDatabase.Callback() {
         override fun onCreate(db: SupportSQLiteDatabase) {

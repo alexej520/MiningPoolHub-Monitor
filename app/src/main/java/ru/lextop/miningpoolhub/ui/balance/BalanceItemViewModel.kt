@@ -7,4 +7,12 @@ data class BalanceItemViewModel(
     val id: String,
     val currency: Currency?,
     val balance: Balance?
-)
+) {
+    companion object {
+        @JvmStatic
+        fun formatBalance(balance: Double): String {
+            if (balance.isNaN()) return ""
+            return "%f".format(balance)
+        }
+    }
+}

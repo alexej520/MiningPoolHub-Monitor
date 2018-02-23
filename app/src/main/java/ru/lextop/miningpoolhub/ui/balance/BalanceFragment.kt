@@ -70,14 +70,18 @@ class BalanceFragment : Fragment(), Injectable {
                 item1: BalanceItemViewModel,
                 item2: BalanceItemViewModel
             ): Boolean {
-                return item1.id == item2.id
+                val result = item1.id == item2.id
+                if (!result) println("${item1.id} != ${item2.id}")
+                return result
             }
 
             override fun areContentsTheSame(
                 item1: BalanceItemViewModel,
                 item2: BalanceItemViewModel
             ): Boolean {
-                return item1 == item2
+                val result = item1 == item2
+                if (!result) println("$item1 != $item2")
+                return result
             }
         }
 
