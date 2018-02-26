@@ -9,6 +9,7 @@ import ru.lextop.miningpoolhub.util.setValueIfNotSame
 import ru.lextop.miningpoolhub.vo.BalancePair
 import ru.lextop.miningpoolhub.vo.Resource
 import ru.lextop.miningpoolhub.vo.Status
+import ru.lextop.miningpoolhub.vo.and
 import javax.inject.Inject
 
 class BalanceViewModel @Inject constructor(
@@ -46,9 +47,8 @@ class BalanceViewModel @Inject constructor(
             var status = it.status
             val newData = if (isConverted) {
                 it.data?.map {
-                    if (it.converted.status != Status.SUCCESS) {
-                        status = it.converted.status
-                    }
+                    status = status and it.converted.status
+
                     BalanceItemViewModel(
                         it.current.coin,
                         it.current.currency,
