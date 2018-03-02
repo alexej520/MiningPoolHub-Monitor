@@ -20,6 +20,8 @@ class BalanceViewModel @Inject constructor(
 
     val isConverted = MutableLiveData<Boolean>()
 
+    val isLoading = MutableLiveData<Boolean>()
+
     private val balancePairs: LiveData<Resource<List<BalancePair>>> =
         Transformations.switchMap(converter) {
             if (it.isNullOrEmpty()) AbsentLiveData()
@@ -31,6 +33,7 @@ class BalanceViewModel @Inject constructor(
 
     init {
         isConverted.value = false
+        isLoading.value = true
         (balances as MediatorLiveData).addSource(balancePairs) {
             updateBalances(it, isConverted.value ?: false)
         }

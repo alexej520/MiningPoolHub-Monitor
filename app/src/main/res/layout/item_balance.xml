@@ -106,6 +106,9 @@
             android:layout_height="wrap_content"
             android:id="@+id/balance_details"
             android:visibility="gone"
+            android:layout_marginStart="12dp"
+            android:layout_marginEnd="12dp"
+            android:layout_marginBottom="12dp"
             tools:visibility="visible"
             android:stretchColumns="*">
             <TableRow>
