@@ -4,4 +4,6 @@
     <string name="balance_normal_title">Normal</string>
     <string name="balance_autoexchange_title">Auto Exchange</string>
     <string name="balance_onexchange_title">On Exchange</string>
+    <string name="balance_confirmed_title">Confirmed</string>
+    <string name="balance_unconfirmed_title">Unconfirmed</string>
 </resources>

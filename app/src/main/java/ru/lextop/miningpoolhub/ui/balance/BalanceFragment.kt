@@ -17,6 +17,7 @@ import ru.lextop.miningpoolhub.R
 import ru.lextop.miningpoolhub.databinding.FragmentBalanceBinding
 import ru.lextop.miningpoolhub.di.Injectable
 import ru.lextop.miningpoolhub.ui.common.SimpleFactoryAdapter
+import ru.lextop.miningpoolhub.ui.common.SlideInItemAnimator
 import ru.lextop.miningpoolhub.vo.Resource
 import ru.lextop.miningpoolhub.vo.Status
 import javax.inject.Inject
@@ -43,9 +44,9 @@ class BalanceFragment : Fragment(), Injectable {
         binding.balanceRefresh.setOnRefreshListener {
             balanceViewModel.retry()
         }
-        adapter = BalanceAdapter(appExecutors)
-
         val balances = binding.balanceBalances
+        balances.itemAnimator = SlideInItemAnimator.CommentAnimator()
+        adapter = BalanceAdapter(appExecutors)
         balances.addItemDecoration(DividerItemDecoration(context, LinearLayoutManager.VERTICAL))
         balances.adapter = adapter
         return binding.root

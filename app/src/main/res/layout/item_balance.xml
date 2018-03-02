@@ -101,151 +101,108 @@
 
         </android.support.constraint.ConstraintLayout>
 
-        <android.support.constraint.ConstraintLayout
-            android:visibility="gone"
-            android:id="@+id/balance_details"
+        <TableLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            tools:visibility="visible">
+            android:id="@+id/balance_details"
+            android:visibility="gone"
+            tools:visibility="visible"
+            android:stretchColumns="*">
+            <TableRow>
+                <Space />
+                <TextView
+                    android:layout_width="0dp"
+                    android:id="@+id/balance_confirmed_title"
+                    android:ellipsize="end"
+                    android:maxLines="1"
+                    android:singleLine="true"
+                    android:text="@string/balance_confirmed_title"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Body2" />
+                <TextView
+                    android:layout_width="0dp"
+                    android:id="@+id/balance_unconfirmed_title"
+                    android:ellipsize="end"
+                    android:maxLines="1"
+                    android:singleLine="true"
+                    android:text="@string/balance_unconfirmed_title"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Body2" />
+            </TableRow>
+            <TableRow>
+                <TextView
+                    android:layout_width="0dp"
+                    android:id="@+id/balance_normal_title"
+                    android:ellipsize="end"
+                    android:maxLines="1"
+                    android:singleLine="true"
+                    android:text="@string/balance_normal_title"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Body2" />
+                <TextView
+                    android:layout_width="0dp"
+                    android:id="@+id/balance_normal_confirmed"
+                    android:ellipsize="end"
+                    android:maxLines="1"
+                    android:singleLine="true"
+                    android:text="@{VM.formatBalance(balance.confirmed)}"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+                    tools:text="0.000034" />
+                <TextView
+                    android:layout_width="0dp"
+                    android:id="@+id/balance_normal_unconfirmed"
+                    android:ellipsize="end"
+                    android:maxLines="1"
+                    android:singleLine="true"
+                    android:text="@{VM.formatBalance(balance.unconfirmed)}"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+                    tools:text="0.0000087" />
+            </TableRow>
+            <TableRow>
+                <TextView
+                    android:layout_width="0dp"
+                    android:id="@+id/balance_autoexchange_title"
+                    android:ellipsize="end"
+                    android:maxLines="1"
+                    android:singleLine="true"
+                    android:text="@string/balance_autoexchange_title"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Body2"/>
+                <TextView
+                    android:layout_width="0dp"
+                    android:id="@+id/balance_autoexchange_confirmed"
+                    android:ellipsize="end"
+                    android:maxLines="1"
+                    android:singleLine="true"
+                    android:text="@{VM.formatBalance(balance.autoExchangeConfirmed)}"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+                    tools:text="0.000234" />
+                <TextView
+                    android:layout_width="0dp"
+                    android:id="@+id/balance_autoexchange_unconfirmed"
+                    android:ellipsize="end"
+                    android:maxLines="1"
+                    android:singleLine="true"
+                    android:text="@{VM.formatBalance(balance.autoExchangeUnconfirmed)}"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+                    tools:text="0.00039247" />
+            </TableRow>
+            <TableRow>
+                <TextView
+                    android:layout_width="0dp"
+                    android:id="@+id/balance_onexchange_title"
+                    android:ellipsize="end"
+                    android:maxLines="1"
+                    android:singleLine="true"
+                    android:text="@string/balance_onexchange_title"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Body2"/>
 
-            <android.support.constraint.Guideline
-                android:id="@+id/guideline"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                app:layout_constraintGuide_percent="0.33" />
-
-            <android.support.constraint.Guideline
-                android:id="@+id/guideline2"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                app:layout_constraintGuide_percent="0.67" />
-
-            <TextView
-                android:id="@+id/balance_normal_title"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="8dp"
-                android:layout_marginEnd="8dp"
-                android:layout_marginStart="12dp"
-                android:layout_marginTop="8dp"
-                android:ellipsize="end"
-                android:maxLines="1"
-                android:singleLine="true"
-                android:text="@string/balance_normal_title"
-                android:textAppearance="@style/TextAppearance.AppCompat.Body2"
-                app:layout_constraintBottom_toTopOf="@+id/balance_normal_confirmed"
-                app:layout_constraintEnd_toStartOf="@+id/guideline"
-                app:layout_constraintStart_toStartOf="parent" />
-
-            <TextView
-                android:id="@+id/balance_normal_autoexchange_title"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="8dp"
-                android:layout_marginStart="8dp"
-                android:ellipsize="end"
-                android:maxLines="1"
-                android:singleLine="true"
-                android:text="@string/balance_autoexchange_title"
-                android:textAppearance="@style/TextAppearance.AppCompat.Body2"
-                app:layout_constraintBaseline_toBaselineOf="@+id/balance_normal_title"
-                app:layout_constraintEnd_toStartOf="@+id/guideline2"
-                app:layout_constraintStart_toStartOf="@+id/guideline" />
-
-            <TextView
-                android:id="@+id/balance_normal_onexchange_title"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:ellipsize="end"
-                android:maxLines="1"
-                android:singleLine="true"
-                android:text="@string/balance_onexchange_title"
-                android:textAppearance="@style/TextAppearance.AppCompat.Body2"
-                app:layout_constraintBaseline_toBaselineOf="@+id/balance_normal_autoexchange_title"
-                app:layout_constraintStart_toStartOf="@+id/guideline2" />
-
-            <TextView
-                android:id="@+id/balance_normal_confirmed"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:layout_weight="1"
-                android:ellipsize="end"
-                android:maxLines="1"
-                android:singleLine="true"
-                android:text="@{VM.formatBalance(balance.confirmed)}"
-                android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-                app:layout_constraintEnd_toEndOf="@+id/balance_normal_title"
-                app:layout_constraintStart_toStartOf="@+id/balance_normal_title"
-                app:layout_constraintTop_toBottomOf="@+id/balance_normal_title"
-                tools:text="0.000034" />
-
-            <TextView
-                android:id="@+id/balance_normal_unconfirmed"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="12dp"
-                android:layout_marginTop="8dp"
-                android:layout_weight="1"
-                android:ellipsize="end"
-                android:maxLines="1"
-                android:singleLine="true"
-                android:text="@{VM.formatBalance(balance.unconfirmed)}"
-                android:textAppearance="@style/TextAppearance.AppCompat.Caption"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="@+id/balance_normal_confirmed"
-                app:layout_constraintStart_toStartOf="@+id/balance_normal_confirmed"
-                app:layout_constraintTop_toBottomOf="@+id/balance_normal_confirmed"
-                tools:text="0.0000087" />
-
-            <TextView
-                android:id="@+id/balance_autoexchange_confirmed"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:ellipsize="end"
-                android:maxLines="1"
-                android:singleLine="true"
-                android:text="@{VM.formatBalance(balance.autoExchangeConfirmed)}"
-                android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-                app:layout_constraintBaseline_toBaselineOf="@+id/balance_normal_confirmed"
-                app:layout_constraintEnd_toEndOf="@+id/balance_normal_autoexchange_title"
-                app:layout_constraintStart_toStartOf="@+id/balance_normal_autoexchange_title"
-                tools:text="0.000234" />
-
-            <TextView
-                android:id="@+id/balance_autoexchange_unconfirmed"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:layout_weight="1"
-                android:ellipsize="end"
-                android:maxLines="1"
-                android:singleLine="true"
-                android:text="@{VM.formatBalance(balance.autoExchangeUnconfirmed)}"
-                android:textAppearance="@style/TextAppearance.AppCompat.Caption"
-                app:layout_constraintBaseline_toBaselineOf="@+id/balance_normal_unconfirmed"
-                app:layout_constraintEnd_toEndOf="@+id/balance_autoexchange_confirmed"
-                app:layout_constraintStart_toStartOf="@+id/balance_autoexchange_confirmed"
-                tools:text="0.00039247" />
-
-            <TextView
-                android:id="@+id/balance_onexchange"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:ellipsize="end"
-                android:maxLines="1"
-                android:singleLine="true"
-                android:text="@{VM.formatBalance(balance.onExchange)}"
-                android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-                app:layout_constraintBaseline_toBaselineOf="@+id/balance_autoexchange_confirmed"
-                app:layout_constraintEnd_toEndOf="@+id/balance_normal_onexchange_title"
-                app:layout_constraintStart_toStartOf="@+id/balance_normal_onexchange_title"
-                tools:text="0.000324" />
-        </android.support.constraint.ConstraintLayout>
+                <TextView
+                    android:layout_width="0dp"
+                    android:id="@+id/balance_onexchange"
+                    android:ellipsize="end"
+                    android:maxLines="1"
+                    android:singleLine="true"
+                    android:text="@{VM.formatBalance(balance.onExchange)}"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+                    tools:text="0.000324" />
+            </TableRow>
+        </TableLayout>
     </LinearLayout>
 </layout>
