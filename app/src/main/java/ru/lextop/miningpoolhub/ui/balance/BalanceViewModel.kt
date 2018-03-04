@@ -3,7 +3,6 @@ package ru.lextop.miningpoolhub.ui.balance
 import android.arch.lifecycle.*
 import ru.lextop.miningpoolhub.repository.BalanceRepository
 import ru.lextop.miningpoolhub.util.AbsentLiveData
-import ru.lextop.miningpoolhub.util.SingletonLiveData
 import ru.lextop.miningpoolhub.util.setSameValueIfNotNullAndNotEmpty
 import ru.lextop.miningpoolhub.util.setValueIfNotSame
 import ru.lextop.miningpoolhub.vo.BalancePair
@@ -20,55 +19,40 @@ class BalanceViewModel @Inject constructor(
 
     val isConverted = MutableLiveData<Boolean>()
 
-    val isLoading = MutableLiveData<Boolean>()
+    private val _status = MediatorLiveData<Status>()
 
-    private val balancePairs: LiveData<Resource<List<BalancePair>>> =
+    val status: LiveData<Status> get() = _status
+
+    val balancePairs: LiveData<Resource<List<BalancePair>>> =
         Transformations.switchMap(converter) {
             if (it.isNullOrEmpty()) AbsentLiveData()
             else
                 balanceRepository.loadBalancePairs(it)
         }
 
-    val balances: LiveData<Resource<List<BalanceItemViewModel>>> = MediatorLiveData()
-
     init {
-        isConverted.value = false
-        isLoading.value = true
-        (balances as MediatorLiveData).addSource(balancePairs) {
-            updateBalances(it, isConverted.value ?: false)
+        _status.addSource(balancePairs) {
+            updateStatus(it, isConverted.value ?: false)
         }
-        balances.addSource(isConverted) {
-            updateBalances(balancePairs.value, it ?: false)
+        _status.addSource(isConverted) {
+            updateStatus(balancePairs.value, it ?: false)
         }
     }
 
-    private fun updateBalances(
+    private fun updateStatus(
         balancePairs: Resource<List<BalancePair>>?,
         isConverted: Boolean
     ) {
-        (balances as MutableLiveData).value = balancePairs?.let {
-            var status = it.status
-            val newData = if (isConverted) {
-                it.data?.map {
+        var status = Status.SUCCESS
+        balancePairs?.let {
+            status = it.status
+            if (isConverted) {
+                it.data?.forEach {
                     status = status and it.converted.status
-
-                    BalanceItemViewModel(
-                        it.current.coin,
-                        it.current.currency,
-                        it.converted.data
-                    )
-                }
-            } else {
-                it.data?.map {
-                    BalanceItemViewModel(
-                        it.current.coin,
-                        it.current.currency,
-                        it.current
-                    )
                 }
             }
-            Resource(status = status, message = it.message, data = newData)
         }
+        _status.value = status
     }
 
     fun setConverted(converted: Boolean) {

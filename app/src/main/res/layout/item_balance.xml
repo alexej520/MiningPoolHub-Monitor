@@ -16,9 +16,15 @@
         <variable
             name="balance"
             type="ru.lextop.miningpoolhub.vo.Balance" />
+
+        <variable
+            name="showDetails"
+            type="Boolean"/>
+        <import type="android.view.View" alias="V"/>
     </data>
 
     <LinearLayout
+        android:activated="@{showDetails}"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical">
@@ -104,8 +110,7 @@
         <TableLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:id="@+id/balance_details"
-            android:visibility="gone"
+            android:visibility="@{showDetails ? V.VISIBLE : V.GONE}"
             android:layout_marginStart="12dp"
             android:layout_marginEnd="12dp"
             android:layout_marginBottom="12dp"

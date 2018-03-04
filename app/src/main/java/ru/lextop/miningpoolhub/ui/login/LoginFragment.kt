@@ -15,8 +15,10 @@ import ru.lextop.miningpoolhub.AppExecutors
 import ru.lextop.miningpoolhub.BR
 import ru.lextop.miningpoolhub.R
 import ru.lextop.miningpoolhub.databinding.FragmentLoginBinding
+import ru.lextop.miningpoolhub.databinding.ItemLoginBinding
+import ru.lextop.miningpoolhub.ui.common.DataBoundViewHolder
 import ru.lextop.miningpoolhub.ui.common.DataBoundViewHolderFactory
-import ru.lextop.miningpoolhub.ui.common.SimpleFactoryAdapter
+import ru.lextop.miningpoolhub.ui.common.SimpleAdapter
 import ru.lextop.miningpoolhub.vo.Login
 import javax.inject.Inject
 
@@ -32,7 +34,7 @@ class LoginFragment : Fragment() {
 
     lateinit var binding: FragmentLoginBinding
 
-    lateinit var adapter: SimpleFactoryAdapter<Login>
+    lateinit var adapter: SimpleAdapter<Login, DataBoundViewHolder<ItemLoginBinding>>
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -43,10 +45,23 @@ class LoginFragment : Fragment() {
         binding.setLifecycleOwner(this)
         val logins = binding.loginLogins
         logins.addItemDecoration(DividerItemDecoration(logins.context, LinearLayoutManager.VERTICAL))
-        binding.loginLogins.adapter = SimpleFactoryAdapter<Login>(
-            DataBoundViewHolderFactory(R.layout.item_login, BR.login),
-            appExecutors
-        )
+        adapter = object : SimpleAdapter<Login, DataBoundViewHolder<ItemLoginBinding>>(appExecutors) {
+            override fun onCreateViewHolder(
+                parent: ViewGroup,
+                viewType: Int
+            ): DataBoundViewHolder<ItemLoginBinding> {
+                val binding = ItemLoginBinding.inflate(inflater, parent, false)
+                return DataBoundViewHolder(binding)
+            }
+
+            override fun onBindViewHolder(
+                holder: DataBoundViewHolder<ItemLoginBinding>,
+                position: Int
+            ) {
+                holder.binding.login = items!![position]
+            }
+        }
+        binding.loginLogins.adapter = adapter
         return binding.root
     }
 

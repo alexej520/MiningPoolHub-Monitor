@@ -7,12 +7,10 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import ru.lextop.miningpoolhub.AppExecutors
 
-open class SimpleFactoryAdapter<T>(
-    factory: ViewHolderFactory<T, *>,
+abstract class SimpleAdapter<T, VH: RecyclerView.ViewHolder>(
     private val appExecutors: AppExecutors? = null
-) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+) : RecyclerView.Adapter<VH>() {
     @Suppress("UNCHECKED_CAST")
-    private val factory = factory as ViewHolderFactory<T, RecyclerView.ViewHolder>
     private var inflater: LayoutInflater? = null
 
     private var dataVersion: Int = 0
@@ -74,19 +72,9 @@ open class SimpleFactoryAdapter<T>(
             }
         }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
-        if (inflater == null) inflater = LayoutInflater.from(parent.context)
-        return factory.createViewHolder(inflater!!, parent)
-    }
-
     override fun getItemCount(): Int {
         return items?.size ?: 0
     }
-
-    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-        factory.bindViewHolder(holder, items!![position])
-    }
-
     open fun areItemsTheSame(item1: T, item2: T): Boolean {
         return false
     }

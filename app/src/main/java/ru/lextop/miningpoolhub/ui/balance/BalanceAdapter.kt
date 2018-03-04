@@ -6,37 +6,33 @@ import android.support.transition.Transition
 import android.support.transition.TransitionManager
 import android.support.v7.widget.DefaultItemAnimator
 import android.support.v7.widget.RecyclerView
+import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import ru.lextop.miningpoolhub.AppExecutors
-import ru.lextop.miningpoolhub.R
 import ru.lextop.miningpoolhub.databinding.ItemBalanceBinding
-import ru.lextop.miningpoolhub.ui.common.DataBoundViewHolder
-import ru.lextop.miningpoolhub.ui.common.DataBoundViewHolderFactory
-import ru.lextop.miningpoolhub.ui.common.SimpleFactoryAdapter
-import ru.lextop.miningpoolhub.util.setVisibleOrGone
+import ru.lextop.miningpoolhub.ui.common.SimpleAdapter
+import ru.lextop.miningpoolhub.vo.Balance
+import ru.lextop.miningpoolhub.vo.BalancePair
+import ru.lextop.miningpoolhub.vo.Currency
 
-class BalanceAdapter(appExecutors: AppExecutors) : SimpleFactoryAdapter<BalanceItemViewModel>(
-    object : DataBoundViewHolderFactory<BalanceItemViewModel, ItemBalanceBinding>(
-        R.layout.item_balance,
-        itemKClass = BalanceItemViewModel::class
+class BalanceAdapter(appExecutors: AppExecutors) :
+    SimpleAdapter<BalancePair, BalanceAdapter.BalancePairViewHolder>(
+        appExecutors
     ) {
-        override fun bindViewHolder(
-            holder: DataBoundViewHolder<ItemBalanceBinding>,
-            item: BalanceItemViewModel
-        ) {
-            holder.binding.currency = item.currency
-            holder.binding.balance = item.balance
-        }
-    },
-    appExecutors
-) {
     private var expandedPosition = RecyclerView.NO_POSITION
 
     private val itemAnimator = ItemAnimator()
     private val touchAbsorber = View.OnTouchListener { _, _ -> true }
     private val transition = AutoTransition()
     private var transitionListener: Transition.TransitionListener? = null
+    private var layoutInflater: LayoutInflater? = null
+
+    var isConverted = false
+        set(value) {
+            field = value
+            notifyItemRangeChanged(0, itemCount, PAYLOAD_CONVERTED)
+        }
 
     @SuppressLint("ClickableViewAccessibility")
     override fun onAttachedToRecyclerView(recyclerView: RecyclerView) {
@@ -65,11 +61,15 @@ class BalanceAdapter(appExecutors: AppExecutors) : SimpleFactoryAdapter<BalanceI
         transitionListener = null
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
-        val holder = super.onCreateViewHolder(parent, viewType)
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BalancePairViewHolder {
+        if (layoutInflater == null) layoutInflater = LayoutInflater.from(parent.context)
+
+        val holder =
+            BalancePairViewHolder(ItemBalanceBinding.inflate(layoutInflater!!, parent, false))
+
         holder.itemView.setOnClickListener {
             val position = holder.layoutPosition
-            TransitionManager.beginDelayedTransition(parent)
+            TransitionManager.beginDelayedTransition(parent, transition)
             val oldPosition = expandedPosition
             itemAnimator.animateMoves = false
             if (oldPosition == position) {
@@ -83,47 +83,50 @@ class BalanceAdapter(appExecutors: AppExecutors) : SimpleFactoryAdapter<BalanceI
         return holder
     }
 
-    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-        (holder as DataBoundViewHolder<ItemBalanceBinding>).binding.root
-        //.setBackgroundColor(holder.itemView.context.resources.getColor(R.color.colorPrimaryDark))
-        val isExpanded = expandedPosition == position
-        holder.binding.balanceDetails.setVisibleOrGone(isExpanded)
-        holder.itemView.isActivated = isExpanded
-        super.onBindViewHolder(holder, position)
+    override fun onBindViewHolder(holder: BalancePairViewHolder, position: Int) {
+        holder.showDetails(expandedPosition == position)
     }
 
     override fun onBindViewHolder(
-        holder: RecyclerView.ViewHolder,
+        holder: BalancePairViewHolder,
         position: Int,
         payloads: MutableList<Any>
     ) {
         if (payloads.contains(PAYLOAD_EXPAND) || payloads.contains(PAYLOAD_COLLAPSE)) {
-            holder as DataBoundViewHolder<ItemBalanceBinding>
-            holder.binding.balanceDetails.setVisibleOrGone(expandedPosition == position)
+            holder.showDetails(expandedPosition == position)
         } else {
-            super.onBindViewHolder(holder, position, payloads)
+            val item = items!![position]
+            holder.bindBalance(if (isConverted) item.converted.data else item.current)
+            if (!payloads.contains(PAYLOAD_CONVERTED)) {
+                holder.bindCurrency(item.current.currency)
+            }
         }
     }
 
     override fun areItemsTheSame(
-        item1: BalanceItemViewModel,
-        item2: BalanceItemViewModel
+        item1: BalancePair,
+        item2: BalancePair
     ): Boolean {
-        val result = item1.id == item2.id
+        val result = item1.current.coin == item2.current.coin
         return result
     }
 
     override fun areContentsTheSame(
-        item1: BalanceItemViewModel,
-        item2: BalanceItemViewModel
+        item1: BalancePair,
+        item2: BalancePair
     ): Boolean {
-        val result = item1 == item2
+        val result = if (isConverted) {
+            item1.converted.data == item2.converted.data
+        } else {
+            item1.current == item2.current
+        }
         return result
     }
 
     companion object {
         const val PAYLOAD_EXPAND = 1
         const val PAYLOAD_COLLAPSE = 2
+        const val PAYLOAD_CONVERTED = 3
     }
 
 
@@ -143,6 +146,26 @@ class BalanceAdapter(appExecutors: AppExecutors) : SimpleFactoryAdapter<BalanceI
             } else {
                 super.animateMove(holder, fromX, fromY, toX, toY)
             }
+        }
+    }
+
+    class BalancePairViewHolder(
+        private val binding: ItemBalanceBinding
+    ) : RecyclerView.ViewHolder(binding.root) {
+
+        fun bindCurrency(currency: Currency?) {
+            binding.currency = currency
+            binding.executePendingBindings()
+        }
+
+        fun bindBalance(balance: Balance?) {
+            binding.balance = balance
+            binding.executePendingBindings()
+        }
+
+        fun showDetails(showDetails: Boolean) {
+            binding.showDetails = showDetails
+            binding.executePendingBindings()
         }
     }
 }

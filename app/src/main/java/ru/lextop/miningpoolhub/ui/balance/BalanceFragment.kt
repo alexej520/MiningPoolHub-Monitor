@@ -16,8 +16,6 @@ import ru.lextop.miningpoolhub.AppExecutors
 import ru.lextop.miningpoolhub.R
 import ru.lextop.miningpoolhub.databinding.FragmentBalanceBinding
 import ru.lextop.miningpoolhub.di.Injectable
-import ru.lextop.miningpoolhub.ui.common.SimpleFactoryAdapter
-import ru.lextop.miningpoolhub.vo.Resource
 import ru.lextop.miningpoolhub.vo.Status
 import javax.inject.Inject
 
@@ -29,7 +27,7 @@ class BalanceFragment : Fragment(), Injectable {
     @Inject
     lateinit var appExecutors: AppExecutors
 
-    lateinit var adapter: SimpleFactoryAdapter<BalanceItemViewModel>
+    lateinit var adapter: BalanceAdapter
 
     lateinit var binding: FragmentBalanceBinding
 
@@ -57,40 +55,42 @@ class BalanceFragment : Fragment(), Injectable {
         binding.balanceViewModel = balanceViewModel
         balanceViewModel.setConverter("RUB")
 
-        balanceViewModel.balances.observe(this, Observer {
+        balanceViewModel.balancePairs.observe(this, Observer {
             adapter.items = it?.data ?: return@Observer
         })
 
-        balanceViewModel.balances.observe(
+        balanceViewModel.status.observe(
             this,
-            Observer<Resource<List<BalanceItemViewModel>>> { it ->
+            Observer<Status> { it ->
                 val refreshing = binding.balanceRefresh.isRefreshing
-                val newRefreshing = it?.status == Status.LOADING
+                val newRefreshing = it == Status.LOADING
                 if (refreshing != newRefreshing) {
                     binding.balanceRefresh.isRefreshing = newRefreshing
                 }
 
-                if (it?.status == Status.ERROR) {
-                    snack(it.message)
+                if (it == Status.ERROR) {
+                    snackError()
                 } else {
-                    cleanSnack()
+                    snackClean()
                 }
             })
+        balanceViewModel.isConverted.observe(this, Observer {
+            adapter.isConverted = it ?: false
+        })
     }
 
     private var snackbar: Snackbar? = null
 
-    private fun snack(text: String?) {
-        val text = "No connection"
-        snackbar = Snackbar.make(view!!, text, Snackbar.LENGTH_INDEFINITE)
-            .setAction("RETRY") {
+    private fun snackError() {
+        snackbar = Snackbar.make(view!!, R.string.all_connectionError, Snackbar.LENGTH_INDEFINITE)
+            .setAction(R.string.all_retry) {
                 balanceViewModel.retry()
             }
 
         snackbar!!.show()
     }
 
-    private fun cleanSnack() {
+    private fun snackClean() {
         snackbar?.dismiss()
     }
 }
