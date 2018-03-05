@@ -16,7 +16,7 @@ import ru.lextop.miningpoolhub.AppExecutors
 import ru.lextop.miningpoolhub.R
 import ru.lextop.miningpoolhub.databinding.FragmentBalanceBinding
 import ru.lextop.miningpoolhub.di.Injectable
-import ru.lextop.miningpoolhub.vo.Status
+import ru.lextop.miningpoolhub.vo.*
 import javax.inject.Inject
 
 class BalanceFragment : Fragment(), Injectable {
@@ -53,10 +53,16 @@ class BalanceFragment : Fragment(), Injectable {
         balanceViewModel =
                 ViewModelProviders.of(activity!!, viewModelFactory)[BalanceViewModel::class.java]
         binding.balanceViewModel = balanceViewModel
-        balanceViewModel.setConverter("RUB")
+        balanceViewModel.setConverter("USD")
 
-        balanceViewModel.balancePairs.observe(this, Observer {
-            adapter.items = it?.data ?: return@Observer
+        balanceViewModel.balancePairs.observe(this, Observer { res ->
+            if (res?.data == null) return@Observer
+            val sum = res.data.fold(null as Balance?) { sum, bp ->
+                if (sum == null) bp.converted.data
+                else bp.converted.data?.let { sum + it } ?: sum
+            }
+            sum?.currency = sum?.currency?.copy(id = "total", name = "Total Currency")
+            adapter.items = if (sum == null) res.data else res.data + BalancePair(sum, Resource(Status.SUCCESS, data = sum))
         })
 
         balanceViewModel.status.observe(
