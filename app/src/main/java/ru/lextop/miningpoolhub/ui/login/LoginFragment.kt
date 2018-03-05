@@ -12,12 +12,10 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import ru.lextop.miningpoolhub.AppExecutors
-import ru.lextop.miningpoolhub.BR
 import ru.lextop.miningpoolhub.R
 import ru.lextop.miningpoolhub.databinding.FragmentLoginBinding
 import ru.lextop.miningpoolhub.databinding.ItemLoginBinding
 import ru.lextop.miningpoolhub.ui.common.DataBoundViewHolder
-import ru.lextop.miningpoolhub.ui.common.DataBoundViewHolderFactory
 import ru.lextop.miningpoolhub.ui.common.SimpleAdapter
 import ru.lextop.miningpoolhub.vo.Login
 import javax.inject.Inject
