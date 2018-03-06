@@ -5,10 +5,7 @@ import ru.lextop.miningpoolhub.repository.BalanceRepository
 import ru.lextop.miningpoolhub.util.AbsentLiveData
 import ru.lextop.miningpoolhub.util.setSameValueIfNotNullAndNotEmpty
 import ru.lextop.miningpoolhub.util.setValueIfNotSame
-import ru.lextop.miningpoolhub.vo.BalancePair
-import ru.lextop.miningpoolhub.vo.Resource
-import ru.lextop.miningpoolhub.vo.Status
-import ru.lextop.miningpoolhub.vo.and
+import ru.lextop.miningpoolhub.vo.*
 import javax.inject.Inject
 
 class BalanceViewModel @Inject constructor(
@@ -30,12 +27,35 @@ class BalanceViewModel @Inject constructor(
                 balanceRepository.loadBalancePairs(it)
         }
 
+    val balanceTotal: LiveData<Resource<BalancePair>>
+
     init {
         _status.addSource(balancePairs) {
             updateStatus(it, isConverted.value ?: false)
         }
         _status.addSource(isConverted) {
             updateStatus(balancePairs.value, it ?: false)
+        }
+
+        balanceTotal = MediatorLiveData<Resource<BalancePair>>().apply {
+            postValue(null)
+            addSource(balancePairs) { res ->
+                if (res?.data != null) {
+                    val sum = res.data.fold(null as Balance?) { sum, bp ->
+                        if (sum == null) bp.converted.data
+                        else bp.converted.data?.let { if (it.currency != null) sum + it else null }
+                                ?: sum
+                    }
+                    sum?.currency = sum?.currency?.copy(id = "total", name = "Total Currency")
+                    if (sum != null) {
+                        value = Resource(
+                            res.status,
+                            message = res.message,
+                            data = BalancePair(sum, Resource(Status.SUCCESS, data = sum))
+                        )
+                    }
+                }
+            }
         }
     }
 

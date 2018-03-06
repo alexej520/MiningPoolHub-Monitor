@@ -15,7 +15,8 @@ operator fun Balance.times(factor: Double) = copy(
 
 operator fun Balance.plus(other: Balance): Balance {
     val currency = currency
-    if (currency == null || currency != other.currency) throw IllegalArgumentException()
+    if (currency == null || currency != other.currency)
+        throw IllegalArgumentException()
     val result = Balance(
         coin = currency.id,
         confirmed = confirmed + other.confirmed,

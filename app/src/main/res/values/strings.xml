@@ -8,4 +8,6 @@
     <string name="balance_unconfirmed_title">Unconfirmed</string>
     <string name="all_connectionError">Connection Error</string>
     <string name="all_retry">RETRY</string>
+    <string name="login_name">Name</string>
+    <string name="login_apiKey">API Key</string>
 </resources>

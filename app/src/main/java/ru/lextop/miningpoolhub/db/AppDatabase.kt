@@ -57,7 +57,8 @@ abstract class AppDatabase : RoomDatabase() {
                 Currency("try", "Turkish Lira", "TRY"),
                 Currency("twd", "Taiwan New Dollar", "TWD"),
                 Currency("usd", "United States Dollar", "USD"),
-                Currency("zar", "South African Rand", "ZAR")
+                Currency("zar", "South African Rand", "ZAR"),
+                Currency("bitcoin", "Bitcoin", "BTC")
             ).forEach {
                 db.insert("currency", SQLiteDatabase.CONFLICT_REPLACE, it.toContentValues())
             }

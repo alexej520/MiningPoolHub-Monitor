@@ -22,11 +22,36 @@ class BalanceAdapter(appExecutors: AppExecutors) :
     ) {
     private var expandedPosition = RecyclerView.NO_POSITION
 
+    var total: BalancePair? = null
+        set(value) {
+            val oldField = field
+            if (oldField == value) return
+            val count = itemCount
+            field = value
+            if (value == null) {
+                if (oldField != null) {
+                    notifyItemInserted(count)
+                }
+            } else {
+                if (oldField != null) {
+                    notifyItemChanged(count - 1)
+                } else {
+                    notifyItemRemoved(count - 1)
+                }
+            }
+        }
+
     private val itemAnimator = ItemAnimator()
     private val touchAbsorber = View.OnTouchListener { _, _ -> true }
     private val transition = AutoTransition()
     private var transitionListener: Transition.TransitionListener? = null
     private var layoutInflater: LayoutInflater? = null
+
+    override fun getItemCount(): Int {
+        var count = super.getItemCount()
+        if (total != null) count++
+        return count
+    }
 
     var isConverted = false
         set(value) {
@@ -92,10 +117,19 @@ class BalanceAdapter(appExecutors: AppExecutors) :
         position: Int,
         payloads: MutableList<Any>
     ) {
+        val total = total
+        val item: BalancePair
+        if (position == itemCount - 1 && total != null) {
+            holder.itemView.setBackgroundColor(holder.itemView.context.resources.getColor(android.R.color.darker_gray))
+            item = total
+        } else {
+            holder.itemView.setBackgroundColor(holder.itemView.context.resources.getColor(android.R.color.white))
+            item = items!![position]
+        }
+
         if (payloads.contains(PAYLOAD_EXPAND) || payloads.contains(PAYLOAD_COLLAPSE)) {
             holder.showDetails(expandedPosition == position)
         } else {
-            val item = items!![position]
             holder.bindBalance(if (isConverted) item.converted.data else item.current)
             if (!payloads.contains(PAYLOAD_CONVERTED)) {
                 holder.bindCurrency(item.current.currency)

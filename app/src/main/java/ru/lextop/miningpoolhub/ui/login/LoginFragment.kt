@@ -15,20 +15,27 @@ import ru.lextop.miningpoolhub.AppExecutors
 import ru.lextop.miningpoolhub.R
 import ru.lextop.miningpoolhub.databinding.FragmentLoginBinding
 import ru.lextop.miningpoolhub.databinding.ItemLoginBinding
+import ru.lextop.miningpoolhub.di.Injectable
+import ru.lextop.miningpoolhub.ui.Navigator
 import ru.lextop.miningpoolhub.ui.common.DataBoundViewHolder
 import ru.lextop.miningpoolhub.ui.common.SimpleAdapter
 import ru.lextop.miningpoolhub.vo.Login
 import javax.inject.Inject
 
-class LoginFragment : Fragment() {
+class LoginFragment : Fragment(), Injectable {
 
     @Inject
     lateinit var appExecutors: AppExecutors
 
     @Inject
+    lateinit var navigator: Navigator
+
+    @Inject
     lateinit var viewModelFactory: ViewModelProvider.Factory
 
     lateinit var loginViewModel: LoginViewModel
+
+    lateinit var loginDialogViewModel: LoginDialogViewModel
 
     lateinit var binding: FragmentLoginBinding
 
@@ -49,7 +56,11 @@ class LoginFragment : Fragment() {
                 viewType: Int
             ): DataBoundViewHolder<ItemLoginBinding> {
                 val binding = ItemLoginBinding.inflate(inflater, parent, false)
-                return DataBoundViewHolder(binding)
+                val holder = DataBoundViewHolder(binding)
+                holder.itemView.setOnClickListener {
+                    editLogin(items?.get(holder.adapterPosition))
+                }
+                return holder
             }
 
             override fun onBindViewHolder(
@@ -60,13 +71,23 @@ class LoginFragment : Fragment() {
             }
         }
         binding.loginLogins.adapter = adapter
+        binding.onAdd = View.OnClickListener {
+            editLogin(null)
+        }
         return binding.root
+    }
+
+    fun editLogin(login: Login?) {
+        loginDialogViewModel.login.value = login
+        navigator.openLoginDialog()
     }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
         loginViewModel =
                 ViewModelProviders.of(activity!!, viewModelFactory)[LoginViewModel::class.java]
+
+        loginDialogViewModel = ViewModelProviders.of(activity!!, viewModelFactory)[LoginDialogViewModel::class.java]
 
         loginViewModel.logins.observe(this, Observer {
             if (it?.data != null) {
