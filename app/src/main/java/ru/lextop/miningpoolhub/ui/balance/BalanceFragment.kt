@@ -55,6 +55,7 @@ class BalanceFragment : Fragment(), Injectable {
 
     private fun setupActionBar() {
         val actionBar = (activity!! as AppCompatActivity).supportActionBar!!
+        arguments?.getString(ARG_NAME)?.let { actionBar.title = it }
         actionBar.setDisplayHomeAsUpEnabled(true)
         actionBar.setHomeAsUpIndicator(R.drawable.ic_arrow_back_white_24dp)
     }
@@ -121,5 +122,16 @@ class BalanceFragment : Fragment(), Injectable {
     override fun onDetach() {
         super.onDetach()
         snackClean()
+    }
+
+    companion object {
+        private const val ARG_NAME = "name"
+        fun create(name: String): BalanceFragment {
+            val fragment = BalanceFragment()
+            fragment.arguments = Bundle().apply {
+                putString(ARG_NAME, name)
+            }
+            return fragment
+        }
     }
 }

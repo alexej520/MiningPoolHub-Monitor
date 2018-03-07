@@ -6,7 +6,6 @@ import android.content.Context
 import android.os.Bundle
 import android.support.v4.app.DialogFragment
 import android.support.v7.app.AppCompatActivity
-import android.support.v7.widget.Toolbar
 import android.view.*
 import android.view.inputmethod.InputMethodManager
 import ru.lextop.miningpoolhub.R
@@ -44,12 +43,25 @@ class LoginDialog : DialogFragment(), Injectable {
 
     private fun setupActionBar() {
         val actionBar = (activity!! as AppCompatActivity).supportActionBar!!
+        arguments?.getBoolean(ARG_ADD, true)?.let { add ->
+            if (add) {
+                actionBar.setTitle(R.string.login_title_add)
+            } else {
+                actionBar.setTitle(R.string.login_title_edit)
+            }
+        }
         actionBar.setDisplayHomeAsUpEnabled(true)
         actionBar.setHomeAsUpIndicator(R.drawable.ic_close_white_24dp)
     }
 
     override fun onCreateOptionsMenu(menu: Menu?, inflater: MenuInflater) {
-        inflater.inflate(R.menu.dialog_login, menu)
+        arguments?.getBoolean(ARG_ADD, true)?.let { add ->
+            if (add) {
+                inflater.inflate(R.menu.dialog_login_add, menu)
+            } else {
+                inflater.inflate(R.menu.dialog_login_edit, menu)
+            }
+        }
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -74,5 +86,24 @@ class LoginDialog : DialogFragment(), Injectable {
             viewModelFactory
         )[LoginDialogViewModel::class.java]
         binding.login = viewModel.login
+    }
+
+    companion object {
+        private const val ARG_ADD = "add"
+        fun createEdit(): LoginDialog {
+            val dialog = LoginDialog()
+            dialog.arguments = Bundle().apply {
+                putBoolean(ARG_ADD, false)
+            }
+            return dialog
+        }
+
+        fun createAdd(): LoginDialog {
+            val dialog = LoginDialog()
+            dialog.arguments = Bundle().apply {
+                putBoolean(ARG_ADD, true)
+            }
+            return dialog
+        }
     }
 }

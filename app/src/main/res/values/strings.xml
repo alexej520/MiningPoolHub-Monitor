@@ -12,4 +12,8 @@
     <string name="login_apiKey">API Key</string>
     <string name="edit">Edit</string>
     <string name="remove">Remove</string>
+    <string name="login_title_add">Add Miner</string>
+    <string name="login_title_edit">Edit Miner</string>
+    <string name="add">ADD</string>
+    <string name="save">SAVE</string>
 </resources>

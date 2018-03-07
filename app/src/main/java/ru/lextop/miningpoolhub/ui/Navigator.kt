@@ -28,12 +28,23 @@ class Navigator @Inject constructor(
             .commit()
     }
 
-    fun openLoginDialog(login: Login?) {
+    fun editLoginDialog(login: Login) {
         val vm = ViewModelProviders.of(activity, viewModelFactory)[LoginDialogViewModel::class.java]
         vm.login.value = login
         transitionManager
             .beginTransaction()
-            .replace(R.id.main_fragmentContainer, LoginDialog())
+            .replace(R.id.main_fragmentContainer, LoginDialog.createEdit())
+            .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
+            .addToBackStack("LoginDialog")
+            .commit()
+    }
+
+    fun addLoginDialog() {
+        val vm = ViewModelProviders.of(activity, viewModelFactory)[LoginDialogViewModel::class.java]
+        vm.login.value = null
+        transitionManager
+            .beginTransaction()
+            .replace(R.id.main_fragmentContainer, LoginDialog.createAdd())
             .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
             .addToBackStack("LoginDialog")
             .commit()
@@ -48,7 +59,7 @@ class Navigator @Inject constructor(
         vm.retry()
         transitionManager
             .beginTransaction()
-            .replace(R.id.main_fragmentContainer, BalanceFragment())
+            .replace(R.id.main_fragmentContainer, BalanceFragment.create(login.name))
             .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
             .addToBackStack("BalanceFragment")
             .commit()

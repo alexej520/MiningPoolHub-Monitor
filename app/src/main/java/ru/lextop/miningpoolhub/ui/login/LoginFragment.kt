@@ -67,7 +67,7 @@ class LoginFragment : Fragment(), Injectable {
                     popupMenu.inflate(R.menu.item_login)
                     popupMenu.setOnMenuItemClickListener { item ->
                         when(item.itemId) {
-                            R.id.edit -> navigator.openLoginDialog(items!![holder.adapterPosition])
+                            R.id.edit -> navigator.editLoginDialog(items!![holder.adapterPosition])
                             R.id.remove -> loginViewModel.remove(items!![holder.adapterPosition])
                             else -> return@setOnMenuItemClickListener false
                         }
@@ -95,13 +95,14 @@ class LoginFragment : Fragment(), Injectable {
         }
         binding.loginLogins.adapter = adapter
         binding.onAdd = View.OnClickListener {
-            navigator.openLoginDialog(null)
+            navigator.addLoginDialog()
         }
         return binding.root
     }
 
     private fun setupActionBar() {
         val actionBar = (activity!! as AppCompatActivity).supportActionBar!!
+        actionBar.setTitle(R.string.app_name)
         actionBar.setDisplayHomeAsUpEnabled(false)
     }
 
