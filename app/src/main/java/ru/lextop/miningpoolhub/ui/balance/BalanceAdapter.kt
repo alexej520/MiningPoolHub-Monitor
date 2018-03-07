@@ -30,13 +30,13 @@ class BalanceAdapter(appExecutors: AppExecutors) :
             field = value
             if (value == null) {
                 if (oldField != null) {
-                    notifyItemInserted(count)
+                    notifyItemRemoved(count - 1)
                 }
             } else {
                 if (oldField != null) {
                     notifyItemChanged(count - 1)
                 } else {
-                    notifyItemRemoved(count - 1)
+                    notifyItemInserted(count)
                 }
             }
         }
@@ -150,9 +150,11 @@ class BalanceAdapter(appExecutors: AppExecutors) :
         item2: BalancePair
     ): Boolean {
         val result = if (isConverted) {
-            item1.converted.data == item2.converted.data
+            item1.converted.data == item2.converted.data &&
+                    item1.converted.data?.currency == item2.converted.data?.currency
         } else {
-            item1.current == item2.current
+            item1.current == item2.current &&
+                    item1.current.currency == item2.current.currency
         }
         return result
     }

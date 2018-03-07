@@ -22,9 +22,11 @@ class BalanceViewModel @Inject constructor(
 
     val balancePairs: LiveData<Resource<List<BalancePair>>> =
         Transformations.switchMap(converter) {
-            if (it.isNullOrEmpty()) AbsentLiveData()
-            else
+            if (it.isNullOrEmpty()){
+                AbsentLiveData()
+            } else {
                 balanceRepository.loadBalancePairs(it)
+            }
         }
 
     val balanceTotal: LiveData<Resource<BalancePair>>
@@ -41,11 +43,20 @@ class BalanceViewModel @Inject constructor(
             postValue(null)
             addSource(balancePairs) { res ->
                 if (res?.data != null) {
-                    val sum = res.data.fold(null as Balance?) { sum, bp ->
-                        if (sum == null) bp.converted.data
-                        else bp.converted.data?.let { if (it.currency != null) sum + it else null }
-                                ?: sum
+
+                    val sum = res.data.fold(null as Balance?) { s, bp ->
+                        val converted = bp.converted.data
+                        if (converted?.currency != null) {
+                            if (s == null) {
+                                converted.copy().apply { currency = converted.currency }
+                            } else {
+                                s + converted
+                            }
+                        } else {
+                            s
+                        }
                     }
+
                     sum?.currency = sum?.currency?.copy(id = "total", name = "Total Currency")
                     if (sum != null) {
                         value = Resource(
@@ -89,6 +100,7 @@ class BalanceViewModel @Inject constructor(
 
     fun clean() {
         balanceRepository.cleanBalancePairs()
+        (balancePairs as MutableLiveData).value = null
         (balanceTotal as MutableLiveData).value = null
     }
 }

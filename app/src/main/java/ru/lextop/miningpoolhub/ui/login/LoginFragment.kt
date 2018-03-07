@@ -37,8 +37,6 @@ class LoginFragment : Fragment(), Injectable {
 
     lateinit var loginViewModel: LoginViewModel
 
-    lateinit var loginDialogViewModel: LoginDialogViewModel
-
     lateinit var binding: FragmentLoginBinding
 
     lateinit var adapter: SimpleAdapter<Login, DataBoundViewHolder<ItemLoginBinding>>

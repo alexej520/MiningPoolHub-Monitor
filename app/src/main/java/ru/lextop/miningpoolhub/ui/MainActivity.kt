@@ -16,8 +16,6 @@ import javax.inject.Inject
 
 class MainActivity : AppCompatActivity(), HasSupportFragmentInjector, Injectable {
     @Inject
-    lateinit var privateAppPreferences: PrivateAppPreferences
-    @Inject
     lateinit var supportFragmentInjector: DispatchingAndroidInjector<Fragment>
     @Inject
     lateinit var navigator: Navigator
@@ -30,7 +28,6 @@ class MainActivity : AppCompatActivity(), HasSupportFragmentInjector, Injectable
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         if (savedInstanceState == null) {
-            privateAppPreferences.miningpoolhubApiKey.save("725f0b8b06cdbff4b292d1f30e947f24790073f13a27d36f3262315836d046df")
             navigator.openLogin()
         }
     }

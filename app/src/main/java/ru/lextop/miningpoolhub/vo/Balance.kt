@@ -28,6 +28,16 @@ data class Balance(
 ) {
     val total: Double get() =
         confirmed + unconfirmed + autoExchangeConfirmed + autoExchangeUnconfirmed + onExchange
+
     @Ignore
-    var currency: Currency? = null
+    private var _currency: Currency? = null
+
+    var currency: Currency?
+    get() = _currency
+    set(value) {
+        if (value?.id == "total") {
+            println("total")
+        }
+        _currency = value
+    }
 }

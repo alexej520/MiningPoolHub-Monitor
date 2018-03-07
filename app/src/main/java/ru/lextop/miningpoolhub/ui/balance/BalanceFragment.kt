@@ -117,4 +117,9 @@ class BalanceFragment : Fragment(), Injectable {
     private fun snackClean() {
         snackbar?.dismiss()
     }
+
+    override fun onDetach() {
+        super.onDetach()
+        snackClean()
+    }
 }

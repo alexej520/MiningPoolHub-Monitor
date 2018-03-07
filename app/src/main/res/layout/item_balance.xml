@@ -75,7 +75,7 @@
                 android:ellipsize="end"
                 android:maxLines="1"
                 android:singleLine="true"
-                android:text="@{balance.currency.symbol + ` ` + VM.formatBalance(balance.total)}"
+                android:text="@{(balance.currency.symbol ?? ``) + ` ` + VM.formatBalance(balance.total)}"
                 android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
                 app:layout_constraintBottom_toBottomOf="@+id/balance_coin_image"
                 app:layout_constraintEnd_toEndOf="parent"
