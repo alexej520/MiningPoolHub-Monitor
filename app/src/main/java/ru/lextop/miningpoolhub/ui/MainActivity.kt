@@ -29,7 +29,9 @@ class MainActivity : AppCompatActivity(), HasSupportFragmentInjector, Injectable
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        privateAppPreferences.miningpoolhubApiKey.save("725f0b8b06cdbff4b292d1f30e947f24790073f13a27d36f3262315836d046df")
-        navigator.openLogin()
+        if (savedInstanceState == null) {
+            privateAppPreferences.miningpoolhubApiKey.save("725f0b8b06cdbff4b292d1f30e947f24790073f13a27d36f3262315836d046df")
+            navigator.openLogin()
+        }
     }
 }

@@ -7,9 +7,11 @@ import android.databinding.DataBindingUtil
 import android.os.Bundle
 import android.support.design.widget.Snackbar
 import android.support.v4.app.Fragment
+import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.DividerItemDecoration
 import android.support.v7.widget.LinearLayoutManager
 import android.view.LayoutInflater
+import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import ru.lextop.miningpoolhub.AppExecutors
@@ -36,6 +38,9 @@ class BalanceFragment : Fragment(), Injectable {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+        setHasOptionsMenu(true)
+        setupActionBar()
+
         binding = DataBindingUtil.inflate(inflater, R.layout.fragment_balance, container, false)
         binding.setLifecycleOwner(this)
         binding.balanceRefresh.setOnRefreshListener {
@@ -48,12 +53,26 @@ class BalanceFragment : Fragment(), Injectable {
         return binding.root
     }
 
+    private fun setupActionBar() {
+        val actionBar = (activity!! as AppCompatActivity).supportActionBar!!
+        actionBar.setDisplayHomeAsUpEnabled(true)
+        actionBar.setHomeAsUpIndicator(R.drawable.ic_arrow_back_white_24dp)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when (item.itemId) {
+            android.R.id.home -> activity!!.onBackPressed()
+            else -> return super.onOptionsItemSelected(item)
+        }
+        return true
+    }
+
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
         balanceViewModel =
                 ViewModelProviders.of(activity!!, viewModelFactory)[BalanceViewModel::class.java]
         binding.balanceViewModel = balanceViewModel
-        balanceViewModel.setConverter("BTC")
+        balanceViewModel.setConverter("RUB")
 
         balanceViewModel.balancePairs.observe(this, Observer { res ->
             if (res?.data == null) return@Observer

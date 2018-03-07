@@ -189,4 +189,10 @@ class BalanceRepository @Inject constructor(
         }
         return mediatorLiveData
     }
+
+    fun cleanBalancePairs() {
+        appExecutors.diskIO.execute {
+            balanceDao.cleanBalances()
+        }
+    }
 }

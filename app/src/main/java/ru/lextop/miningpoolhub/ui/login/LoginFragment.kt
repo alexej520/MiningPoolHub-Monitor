@@ -6,8 +6,10 @@ import android.arch.lifecycle.ViewModelProviders
 import android.databinding.DataBindingUtil
 import android.os.Bundle
 import android.support.v4.app.Fragment
+import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.DividerItemDecoration
 import android.support.v7.widget.LinearLayoutManager
+import android.support.v7.widget.PopupMenu
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -46,6 +48,8 @@ class LoginFragment : Fragment(), Injectable {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+        setupActionBar()
+
         binding = DataBindingUtil.inflate(inflater, R.layout.fragment_login, container, false)
         binding.setLifecycleOwner(this)
         val logins = binding.loginLogins
@@ -58,7 +62,20 @@ class LoginFragment : Fragment(), Injectable {
                 val binding = ItemLoginBinding.inflate(inflater, parent, false)
                 val holder = DataBoundViewHolder(binding)
                 holder.itemView.setOnClickListener {
-                    editLogin(items?.get(holder.adapterPosition))
+                    navigator.openBalance(items!![holder.adapterPosition])
+                }
+                holder.binding.loginAction.setOnClickListener {
+                    val popupMenu = PopupMenu(context!!, holder.binding.loginAction)
+                    popupMenu.inflate(R.menu.item_login)
+                    popupMenu.setOnMenuItemClickListener { item ->
+                        when(item.itemId) {
+                            R.id.edit -> navigator.openLoginDialog(items!![holder.adapterPosition])
+                            R.id.remove -> loginViewModel.remove(items!![holder.adapterPosition])
+                            else -> return@setOnMenuItemClickListener false
+                        }
+                        return@setOnMenuItemClickListener true
+                    }
+                    popupMenu.show()
                 }
                 return holder
             }
@@ -69,25 +86,31 @@ class LoginFragment : Fragment(), Injectable {
             ) {
                 holder.binding.login = items!![position]
             }
+
+            override fun areItemsTheSame(item1: Login, item2: Login): Boolean {
+                return item1.apiKey == item2.apiKey
+            }
+
+            override fun areContentsTheSame(item1: Login, item2: Login): Boolean {
+                return item1 == item2
+            }
         }
         binding.loginLogins.adapter = adapter
         binding.onAdd = View.OnClickListener {
-            editLogin(null)
+            navigator.openLoginDialog(null)
         }
         return binding.root
     }
 
-    fun editLogin(login: Login?) {
-        loginDialogViewModel.login.value = login
-        navigator.openLoginDialog()
+    private fun setupActionBar() {
+        val actionBar = (activity!! as AppCompatActivity).supportActionBar!!
+        actionBar.setDisplayHomeAsUpEnabled(false)
     }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
         loginViewModel =
                 ViewModelProviders.of(activity!!, viewModelFactory)[LoginViewModel::class.java]
-
-        loginDialogViewModel = ViewModelProviders.of(activity!!, viewModelFactory)[LoginDialogViewModel::class.java]
 
         loginViewModel.logins.observe(this, Observer {
             if (it?.data != null) {

@@ -86,4 +86,9 @@ class BalanceViewModel @Inject constructor(
     fun retry() {
         converter.setSameValueIfNotNullAndNotEmpty()
     }
+
+    fun clean() {
+        balanceRepository.cleanBalancePairs()
+        (balanceTotal as MutableLiveData).value = null
+    }
 }

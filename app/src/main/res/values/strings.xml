@@ -10,4 +10,6 @@
     <string name="all_retry">RETRY</string>
     <string name="login_name">Name</string>
     <string name="login_apiKey">API Key</string>
+    <string name="edit">Edit</string>
+    <string name="remove">Remove</string>
 </resources>
