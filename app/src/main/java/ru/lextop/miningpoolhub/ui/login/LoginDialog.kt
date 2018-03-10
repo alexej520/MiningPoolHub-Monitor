@@ -31,6 +31,7 @@ class LoginDialog : DialogFragment(), Injectable {
         setHasOptionsMenu(true)
 
         binding = DialogLoginBinding.inflate(inflater, container, false)
+        binding.loginName.error
         return binding.root
     }
 

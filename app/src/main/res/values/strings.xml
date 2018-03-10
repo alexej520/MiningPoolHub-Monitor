@@ -16,4 +16,5 @@
     <string name="login_title_edit">Edit Miner</string>
     <string name="add">ADD</string>
     <string name="save">SAVE</string>
+    <string name="login_apiKey_helper"><![CDATA[\"Edit Account\" -> \"API KEY\"]]></string>
 </resources>
