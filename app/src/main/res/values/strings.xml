@@ -18,5 +18,6 @@
     <string name="save">SAVE</string>
     <string name="login_apiKey_helper"><![CDATA[\"Edit Account\" -> \"API KEY\"]]></string>
     <string name="preference_key_app_balanceConverter" translatable="false">balanceConverter</string>
-    <string name="convert">Convert</string>
+    <string name="conversion">Conversion</string>
+    <string name="preference_key_app_balanceIsConverted" translatable="false">balanceIsConverted</string>
 </resources>

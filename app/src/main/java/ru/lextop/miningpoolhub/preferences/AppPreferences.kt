@@ -18,4 +18,10 @@ class AppPreferences @Inject constructor(
         context.getString(R.string.preference_key_app_balanceConverter),
         "USD"
     )
+
+    val balanceIsConverted = BooleanPreference(
+        sharedPreferences,
+        context.getString(R.string.preference_key_app_balanceIsConverted),
+        false
+    )
 }

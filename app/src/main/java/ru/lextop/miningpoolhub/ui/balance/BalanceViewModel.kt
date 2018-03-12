@@ -73,6 +73,7 @@ class BalanceViewModel @Inject constructor(
             }
         }
         setConverter(appPreferences.balanceConverter.get())
+        setConverted(appPreferences.balanceIsConverted.get())
     }
 
     private fun updateStatus(
@@ -109,6 +110,7 @@ class BalanceViewModel @Inject constructor(
     }
 
     fun setConverted(converted: Boolean) {
+        appPreferences.balanceIsConverted.save(converted)
         isConverted.setValueIfNotSame(converted)
     }
 
