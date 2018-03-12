@@ -1,6 +1,8 @@
 package ru.lextop.miningpoolhub.ui.balance
 
 import android.arch.lifecycle.*
+import ru.lextop.miningpoolhub.db.BalanceDao
+import ru.lextop.miningpoolhub.preferences.AppPreferences
 import ru.lextop.miningpoolhub.repository.BalanceRepository
 import ru.lextop.miningpoolhub.util.AbsentLiveData
 import ru.lextop.miningpoolhub.util.setSameValueIfNotNullAndNotEmpty
@@ -9,10 +11,12 @@ import ru.lextop.miningpoolhub.vo.*
 import javax.inject.Inject
 
 class BalanceViewModel @Inject constructor(
-    private val balanceRepository: BalanceRepository
+    private val balanceRepository: BalanceRepository,
+    private val balanceDao: BalanceDao,
+    private val appPreferences: AppPreferences
 ) : ViewModel() {
 
-    private val converter = MutableLiveData<String>()
+    private val _converter = MutableLiveData<String>()
 
     val isConverted = MutableLiveData<Boolean>()
 
@@ -21,11 +25,11 @@ class BalanceViewModel @Inject constructor(
     val status: LiveData<Status> get() = _status
 
     val balancePairs: LiveData<Resource<List<BalancePair>>> =
-        Transformations.switchMap(converter) {
-            if (it.isNullOrEmpty()){
+        Transformations.switchMap(_converter) { converter ->
+            if (converter.isNullOrEmpty()) {
                 AbsentLiveData()
             } else {
-                balanceRepository.loadBalancePairs(it)
+                balanceRepository.loadBalancePairs(converter)
             }
         }
 
@@ -68,6 +72,7 @@ class BalanceViewModel @Inject constructor(
                 }
             }
         }
+        setConverter(appPreferences.balanceConverter.get())
     }
 
     private fun updateStatus(
@@ -86,16 +91,34 @@ class BalanceViewModel @Inject constructor(
         _status.value = status
     }
 
+    val currencies: LiveData<List<Currency>> = balanceDao.loadCurrencies()
+
+    val currencyPosition: MutableLiveData<Int> = MediatorLiveData<Int>().apply {
+        addSource(currencies) { currencies ->
+            if (currencies == null) {
+                value = -1
+            } else {
+                val converter = _converter.value
+                value = currencies.indexOfFirst { it.symbol == converter }
+            }
+        }
+        observeForever {
+            val currencies = currencies.value ?: return@observeForever
+            setConverter(currencies[it!!].symbol)
+        }
+    }
+
     fun setConverted(converted: Boolean) {
         isConverted.setValueIfNotSame(converted)
     }
 
-    fun setConverter(converter: String) {
-        this.converter.setValueIfNotSame(converter)
+    private fun setConverter(converter: String) {
+        appPreferences.balanceConverter.save(converter)
+        this._converter.setValueIfNotSame(converter)
     }
 
     fun retry() {
-        converter.setSameValueIfNotNullAndNotEmpty()
+        _converter.setSameValueIfNotNullAndNotEmpty()
     }
 
     fun clean() {

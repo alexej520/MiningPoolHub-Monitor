@@ -8,12 +8,18 @@ import android.os.Bundle
 import android.support.design.widget.Snackbar
 import android.support.v4.app.Fragment
 import android.support.v7.app.AppCompatActivity
+import android.support.v7.widget.AppCompatSpinner
 import android.support.v7.widget.DividerItemDecoration
 import android.support.v7.widget.LinearLayoutManager
 import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
+import android.widget.BaseAdapter
+import android.widget.SimpleAdapter
+import android.widget.SpinnerAdapter
+import android.widget.TextView
+import com.toptoche.searchablespinnerlibrary.SearchableSpinner
 import ru.lextop.miningpoolhub.AppExecutors
 import ru.lextop.miningpoolhub.R
 import ru.lextop.miningpoolhub.databinding.FragmentBalanceBinding
@@ -29,8 +35,6 @@ class BalanceFragment : Fragment(), Injectable {
     @Inject
     lateinit var appExecutors: AppExecutors
 
-    lateinit var adapter: BalanceAdapter
-
     lateinit var binding: FragmentBalanceBinding
 
     override fun onCreateView(
@@ -43,13 +47,15 @@ class BalanceFragment : Fragment(), Injectable {
 
         binding = DataBindingUtil.inflate(inflater, R.layout.fragment_balance, container, false)
         binding.setLifecycleOwner(this)
+        binding.balanceConverter.getDialogAdapter = { arrayAdapter ->
+            (arrayAdapter as CurrencyAdapter).getDialogAdapter()
+        }
+        binding.currencyAdapter = CurrencyAdapter(context!!)
         binding.balanceRefresh.setOnRefreshListener {
             balanceViewModel.retry()
         }
-        val balances = binding.balanceBalances
-        adapter = BalanceAdapter(appExecutors)
-        balances.addItemDecoration(DividerItemDecoration(context, LinearLayoutManager.VERTICAL))
-        balances.adapter = adapter
+        binding.balanceBalances.addItemDecoration(DividerItemDecoration(context, LinearLayoutManager.VERTICAL))
+        binding.balanceAdapter = BalanceAdapter(appExecutors)
         return binding.root
     }
 
@@ -73,15 +79,18 @@ class BalanceFragment : Fragment(), Injectable {
         balanceViewModel =
                 ViewModelProviders.of(activity!!, viewModelFactory)[BalanceViewModel::class.java]
         binding.balanceViewModel = balanceViewModel
-        balanceViewModel.setConverter("RUB")
 
         balanceViewModel.balancePairs.observe(this, Observer { res ->
             if (res?.data == null) return@Observer
-            adapter.items = res.data
+            binding.balanceAdapter!!.items = res.data
         })
 
         balanceViewModel.balanceTotal.observe(this, Observer {
-            adapter.total = it?.data ?: return@Observer
+            binding.balanceAdapter!!.total = it?.data ?: return@Observer
+        })
+
+        balanceViewModel.currencies.observe(this, Observer {
+            binding.currencyAdapter!!.currencies = it
         })
 
         balanceViewModel.status.observe(
@@ -100,7 +109,7 @@ class BalanceFragment : Fragment(), Injectable {
                 }
             })
         balanceViewModel.isConverted.observe(this, Observer {
-            adapter.isConverted = it ?: false
+            binding.balanceAdapter!!.isConverted = it ?: false
         })
     }
 

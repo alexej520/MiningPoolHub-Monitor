@@ -15,4 +15,10 @@ data class Currency (
     @SerializedName("symbol")
     @ColumnInfo(name = "symbol")
     val symbol: String
-)
+) {
+
+    // for filter
+    override fun toString(): String {
+        return "$name - $symbol"
+    }
+}

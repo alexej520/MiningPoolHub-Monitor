@@ -42,10 +42,21 @@ class AppModule {
         return context.getSharedPreferences(privatePrefsName, Context.MODE_PRIVATE)
     }
 
+    @Named(SHARED_PREFERENCES_APP)
+    @Provides
+    @Singleton
+    fun provideAppSharedPreferences(
+        @Named(CONTEXT_APPLICATION) context: Context
+    ): SharedPreferences {
+        val privatePrefsName = context.packageName + "_preferences_app"
+        return context.getSharedPreferences(privatePrefsName, Context.MODE_PRIVATE)
+    }
+
     @Module
     companion object {
         const val CONTEXT_APPLICATION = "application"
         const val SHARED_PREFERENCES_DEFAULT = "default"
         const val SHARED_PREFERENCES_PRIVATE = "private"
+        const val SHARED_PREFERENCES_APP = "app"
     }
 }

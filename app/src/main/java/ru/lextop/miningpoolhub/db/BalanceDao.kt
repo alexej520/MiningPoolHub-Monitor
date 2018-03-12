@@ -15,7 +15,7 @@ abstract class BalanceDao {
     abstract fun insertCurrencies(currency: List<Currency>)
 
     @Query("select * from currency")
-    abstract fun loadCurrency(): LiveData<List<Currency>>
+    abstract fun loadCurrencies(): LiveData<List<Currency>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     abstract fun insertTickers(tickers: List<Ticker>)

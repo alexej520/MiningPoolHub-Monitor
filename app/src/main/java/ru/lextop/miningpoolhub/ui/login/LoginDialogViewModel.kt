@@ -15,6 +15,7 @@ class LoginDialogViewModel @Inject constructor(
 
     fun save(name: String, apiKey: String) {
         appExecutors.diskIO.execute {
+            login.value?.let { loginDao.deleteLogin(it) }
             loginDao.insertLogin(Login(apiKey, name))
         }
     }

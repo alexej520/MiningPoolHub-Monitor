@@ -6,7 +6,7 @@
     <string name="balance_onexchange_title">On Exchange</string>
     <string name="balance_confirmed_title">Confirmed</string>
     <string name="balance_unconfirmed_title">Unconfirmed</string>
-    <string name="all_connectionError">Connection Error</string>
+    <string name="all_connectionError">Failed to fetch data</string>
     <string name="all_retry">RETRY</string>
     <string name="login_name">Name</string>
     <string name="login_apiKey">API Key</string>
@@ -17,4 +17,6 @@
     <string name="add">ADD</string>
     <string name="save">SAVE</string>
     <string name="login_apiKey_helper"><![CDATA[\"Edit Account\" -> \"API KEY\"]]></string>
+    <string name="preference_key_app_balanceConverter" translatable="false">balanceConverter</string>
+    <string name="convert">Convert</string>
 </resources>
