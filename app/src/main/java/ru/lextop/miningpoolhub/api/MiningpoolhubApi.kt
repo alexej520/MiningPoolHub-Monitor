@@ -3,18 +3,18 @@ package ru.lextop.miningpoolhub.api
 import android.arch.lifecycle.LiveData
 import retrofit2.http.GET
 import retrofit2.http.Query
+import ru.lextop.miningpoolhub.vo.AutoswitchStat
 import ru.lextop.miningpoolhub.vo.Balance
+import ru.lextop.miningpoolhub.vo.MiningStat
 
 interface MiningpoolhubApi {
     @GET(PREFIX + "getminingandprofitsstatistics")
     fun getMiningAndProfitsStatistics(
-
-    )
+    ): LiveData<ApiResponse<List<MiningStat>>>
 
     @GET(PREFIX + "getautoswitchingandprofitsstatistics")
     fun getAutoSwitchingAndProfitsStatistics(
-
-    )
+    ): LiveData<ApiResponse<List<AutoswitchStat>>>
 
     @GET(PREFIX + "getuserallbalances")
     fun getUserAllBalances(
@@ -78,7 +78,8 @@ interface MiningpoolhubApi {
 
     @GET(PREFIX + "getpoolinfo")
     fun getPoolInfo(
-
+        @Query(QUERY_POOL)
+        coinName: String
     )
 
     // getpoolsharerate
