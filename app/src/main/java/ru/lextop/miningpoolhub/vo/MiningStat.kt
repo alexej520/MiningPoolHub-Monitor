@@ -56,7 +56,7 @@ data class MiningStat(
     val reward: Double,
     @SerializedName("last_block")
     @ColumnInfo(name = "last_block")
-    val lastBlock: Int,
+    val lastBlock: Long,
     @SerializedName("time_since_last_block")
     @ColumnInfo(name = "time_since_last_block")
     val timeSinceLastBlock: Int,
@@ -68,13 +68,13 @@ data class MiningStat(
     val bittrexBuyPrice: Double,
     @SerializedName("cryptsy_buy_price")
     @ColumnInfo(name = "cryptsy_buy_price")
-    val cryptsyBuyPrice: Int,
+    val cryptsyBuyPrice: Double,
     @SerializedName("yobit_buy_price")
     @ColumnInfo(name = "yobit_buy_price")
-    val yobitBuyPrice: Int,
+    val yobitBuyPrice: Double,
     @SerializedName("poloniex_buy_price")
     @ColumnInfo(name = "poloniex_buy_price")
-    val poloniexBuyPrice: Int,
+    val poloniexBuyPrice: Double,
     @SerializedName("highest_buy_price")
     @ColumnInfo(name = "highest_buy_price")
     val highestBuyPrice: Double
