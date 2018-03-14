@@ -8,22 +8,15 @@ import android.os.Bundle
 import android.support.design.widget.Snackbar
 import android.support.v4.app.Fragment
 import android.support.v7.app.AppCompatActivity
-import android.support.v7.widget.AppCompatSpinner
 import android.support.v7.widget.DividerItemDecoration
 import android.support.v7.widget.LinearLayoutManager
-import android.view.LayoutInflater
-import android.view.MenuItem
-import android.view.View
-import android.view.ViewGroup
-import android.widget.BaseAdapter
-import android.widget.SimpleAdapter
-import android.widget.SpinnerAdapter
-import android.widget.TextView
-import com.toptoche.searchablespinnerlibrary.SearchableSpinner
+import android.view.*
+import android.widget.*
 import ru.lextop.miningpoolhub.AppExecutors
 import ru.lextop.miningpoolhub.R
 import ru.lextop.miningpoolhub.databinding.FragmentBalanceBinding
 import ru.lextop.miningpoolhub.di.Injectable
+import ru.lextop.miningpoolhub.ui.common.SearchableSpinner
 import ru.lextop.miningpoolhub.vo.*
 import javax.inject.Inject
 
@@ -37,6 +30,24 @@ class BalanceFragment : Fragment(), Injectable {
 
     lateinit var binding: FragmentBalanceBinding
 
+    lateinit var currencyAdapter: CurrencyAdapter
+
+    val searchableSpinnerDialogCreator = object : SearchableSpinner.DialogCreator() {
+        init {
+            onItemSelectedListener = object : OnItemSelectedListener {
+                override fun onItemSelected(position: Int) {
+                    balanceViewModel.currencyPosition.value = position
+                }
+
+                override fun onNothingSelected() {
+                }
+            }
+        }
+        override fun createAdapter(source: ArrayAdapter<*>): ArrayAdapter<*> {
+            return CurrencyAdapter.getDialogAdapter(source as CurrencyAdapter)
+        }
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -47,10 +58,8 @@ class BalanceFragment : Fragment(), Injectable {
 
         binding = DataBindingUtil.inflate(inflater, R.layout.fragment_balance, container, false)
         binding.setLifecycleOwner(this)
-        binding.balanceConverter.getDialogAdapter = { arrayAdapter ->
-            (arrayAdapter as CurrencyAdapter).getDialogAdapter()
-        }
-        binding.currencyAdapter = CurrencyAdapter(context!!)
+
+        currencyAdapter = CurrencyAdapter(context!!)
         binding.balanceRefresh.setOnRefreshListener {
             balanceViewModel.retry()
         }
@@ -66,9 +75,19 @@ class BalanceFragment : Fragment(), Injectable {
         actionBar.setHomeAsUpIndicator(R.drawable.ic_arrow_back_white_24dp)
     }
 
+    override fun onCreateOptionsMenu(menu: Menu?, inflater: MenuInflater) {
+        inflater.inflate(R.menu.fragment_balance, menu)
+        val currencyItem = menu!!.findItem(R.id.balance_converter)
+        balanceViewModel.converter.observe(this, Observer {
+            currencyItem.title = it
+        })
+    }
+
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             android.R.id.home -> activity!!.onBackPressed()
+            R.id.balance_isConverted -> balanceViewModel.setConverted(!balanceViewModel.isConverted.value!!)
+            R.id.balance_converter -> searchableSpinnerDialogCreator.createDialog(context!!, currencyAdapter).show()
             else -> return super.onOptionsItemSelected(item)
         }
         return true
@@ -90,7 +109,7 @@ class BalanceFragment : Fragment(), Injectable {
         })
 
         balanceViewModel.currencies.observe(this, Observer {
-            binding.currencyAdapter!!.currencies = it
+            currencyAdapter.currencies = it
         })
 
         balanceViewModel.status.observe(

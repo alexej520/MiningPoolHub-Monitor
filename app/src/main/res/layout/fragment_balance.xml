@@ -7,69 +7,26 @@
         <variable
             name="balanceViewModel"
             type="ru.lextop.miningpoolhub.ui.balance.BalanceViewModel" />
-        
+
         <variable
             name="balanceAdapter"
-            type="ru.lextop.miningpoolhub.ui.balance.BalanceAdapter"/>
-
-        <variable
-            name="currencyAdapter"
-            type="ru.lextop.miningpoolhub.ui.balance.CurrencyAdapter"/>
+            type="ru.lextop.miningpoolhub.ui.balance.BalanceAdapter" />
     </data>
 
-    <LinearLayout
+    <android.support.v4.widget.SwipeRefreshLayout
+        android:id="@+id/balance_refresh"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical">
+        android:layout_height="match_parent">
 
-        <LinearLayout
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/balance_balances"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal">
-            <Switch
-                android:layout_gravity="center_vertical|start"
-                android:layout_marginStart="16dp"
-                android:layout_marginEnd="8dp"
-                android:id="@+id/balance_isConverted"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:onCheckedChanged="@{(switch, checked) -> balanceViewModel.setConverted(checked)}"
-                android:checked="@={balanceViewModel.isConverted}"
-                android:text="@string/conversion" />
+            android:layout_height="match_parent"
+            android:adapter="@{balanceAdapter}"
+            android:scrollbars="vertical"
+            app:layoutManager="android.support.v7.widget.LinearLayoutManager">
 
-            <Space
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"/>
+        </android.support.v7.widget.RecyclerView>
+    </android.support.v4.widget.SwipeRefreshLayout>
 
-            <ru.lextop.miningpoolhub.ui.common.SearchableSpinner
-                android:layout_gravity="center_vertical|end"
-                android:layout_marginStart="8dp"
-                android:layout_marginEnd="8dp"
-                android:spinnerMode="dialog"
-                android:id="@+id/balance_converter"
-                android:adapter="@{currencyAdapter}"
-                android:selectedItemPosition="@={balanceViewModel.currencyPosition}"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content" />
-        </LinearLayout>
-
-        <android.support.v4.widget.SwipeRefreshLayout
-            android:id="@+id/balance_refresh"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
-
-            <android.support.v7.widget.RecyclerView
-                android:id="@+id/balance_balances"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:scrollbars="vertical"
-                android:adapter="@{balanceAdapter}"
-                app:layoutManager="android.support.v7.widget.LinearLayoutManager">
-
-            </android.support.v7.widget.RecyclerView>
-        </android.support.v4.widget.SwipeRefreshLayout>
-
-
-    </LinearLayout>
 </layout>

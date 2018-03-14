@@ -18,6 +18,8 @@ class BalanceViewModel @Inject constructor(
 
     private val _converter = MutableLiveData<String>()
 
+    val converter: LiveData<String> = _converter
+
     val isConverted = MutableLiveData<Boolean>()
 
     private val _status = MediatorLiveData<Status>()

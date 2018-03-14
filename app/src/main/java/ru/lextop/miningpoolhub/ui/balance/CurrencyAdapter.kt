@@ -53,13 +53,15 @@ open class CurrencyAdapter(
         return view
     }
 
-    fun getDialogAdapter(): ArrayAdapter<Currency> {
-        return object : CurrencyAdapter(context) {
-            init {
-                currencies = this@CurrencyAdapter.currencies
-            }
-            override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
-                return getDropDownView(position, convertView, parent)
+    companion object {
+        fun getDialogAdapter(original: CurrencyAdapter): ArrayAdapter<Currency> {
+            return object : CurrencyAdapter(original.context) {
+                init {
+                    currencies = original.currencies
+                }
+                override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
+                    return getDropDownView(position, convertView, parent)
+                }
             }
         }
     }

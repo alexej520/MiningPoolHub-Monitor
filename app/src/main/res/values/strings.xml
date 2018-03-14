@@ -20,4 +20,6 @@
     <string name="preference_key_app_balanceConverter" translatable="false">balanceConverter</string>
     <string name="conversion">Conversion</string>
     <string name="preference_key_app_balanceIsConverted" translatable="false">balanceIsConverted</string>
+    <string name="usd">USD</string>
+    <string name="sortBy">Sort by</string>
 </resources>

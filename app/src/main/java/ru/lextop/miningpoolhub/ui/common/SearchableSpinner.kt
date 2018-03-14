@@ -72,7 +72,8 @@ class SearchableSpinner(
     override fun performClick(): Boolean {
         if (mode == MODE_DIALOG) {
             if (!isDialogShow) {
-                createDialog().show()
+                val dialog = createDialog() ?: return true
+                dialog.show()
                 isDialogShow = true
             }
             return true
@@ -80,75 +81,100 @@ class SearchableSpinner(
         return super.performClick()
     }
 
-    var getDialogAdapter: ((ArrayAdapter<*>) -> ArrayAdapter<*>)? = null
-
     private var isDialogShow = false
 
-    private fun createDialog(): Dialog {
-        val ctx = popupContext ?: context
-        val view = LayoutInflater.from(ctx).inflate(R.layout.dialog_searchable_spinner, null)
-        val searchView = view.findViewById<SearchView>(R.id.searchableSpinner_search)
-        val itemsListView = view.findViewById<ListView>(R.id.searchableSpinner_items)
-        itemsListView.isTextFilterEnabled = true
-        val adapter = getDialogAdapter?.invoke(adapter as ArrayAdapter<*>) ?: adapter as ArrayAdapter<*>
-        val selection = selectedItemPosition
-
-        searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener{
-            override fun onQueryTextSubmit(query: String): Boolean {
-                adapter.filter.filter(query)
-                return true
-            }
-
-            override fun onQueryTextChange(newText: String): Boolean {
-                adapter.filter.filter(newText)
-                return true
-            }
-        })
-
-        itemsListView.adapter = adapter
-        val dialog = AlertDialog.Builder(ctx)
-            .setView(view)
-            .setPositiveButton(android.R.string.cancel, null)
-            .create()
-
-        val onDismissListener = object: DialogInterface.OnDismissListener {
-            private var isItemSelect = false
-            private var item: Any? = null
-
-            fun selectItem(item: Any?) {
-                isItemSelect = true
-                this.item = item
-            }
-
-            override fun onDismiss(dialog: DialogInterface?) {
-                if (!isItemSelect) {
-                    adapter.filter.filter(null) {
-                        setSelection(selection)
-                    }
-                } else {
-                    adapter.filter.filter(null) {
-                        for (i in 0 until adapter.count) {
-                            if (adapter.getItem(i) == item) {
-                                setSelection(i)
-                                break
-                            }
-                        }
-                    }
-                }
-                isDialogShow = false
-            }
+    private val listener = object : DialogCreator.OnItemSelectedListener {
+        override fun onItemSelected(position: Int) {
+            setSelection(position)
+            isDialogShow = false
         }
-
-        dialog.setOnDismissListener(onDismissListener)
-        itemsListView.setOnItemClickListener { _, _, position, id ->
-            val item = adapter.getItem(position)
-            onDismissListener.selectItem(item)
-            dialog.dismiss()
+        override fun onNothingSelected() {
+            isDialogShow = false
         }
-        return dialog
+    }
+
+    var dialogCreator: DialogCreator? = null
+
+    private fun createDialog(): Dialog? {
+        val creator = dialogCreator ?: return null
+        creator.onItemSelectedListener = listener
+        return creator.createDialog(popupContext ?: context, adapter as ArrayAdapter<*>)
     }
 
     companion object {
         val ATTRS_ANDROID_SPINNERMODE = intArrayOf(android.R.attr.spinnerMode)
+    }
+
+    abstract class DialogCreator {
+        var onItemSelectedListener: OnItemSelectedListener? = null
+        protected abstract fun createAdapter(source: ArrayAdapter<*>): ArrayAdapter<*>
+        fun createDialog(context: Context, sourceAdapter: ArrayAdapter<*>): Dialog {
+            val adapter = createAdapter(sourceAdapter)
+            val view = LayoutInflater.from(context).inflate(R.layout.dialog_searchable_spinner, null)
+            val searchView = view.findViewById<SearchView>(R.id.searchableSpinner_search)
+            val itemsListView = view.findViewById<ListView>(R.id.searchableSpinner_items)
+            itemsListView.isTextFilterEnabled = true
+
+            searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener{
+                override fun onQueryTextSubmit(query: String): Boolean {
+                    adapter.filter.filter(query)
+                    return true
+                }
+
+                override fun onQueryTextChange(newText: String): Boolean {
+                    adapter.filter.filter(newText)
+                    return true
+                }
+            })
+
+            itemsListView.adapter = adapter
+            val dialog = AlertDialog.Builder(context)
+                .setView(view)
+                .setPositiveButton(android.R.string.cancel, null)
+                .create()
+
+            val onDismissListener = object: DialogInterface.OnDismissListener {
+                private var isItemSelect = false
+                private var item: Any? = null
+
+                fun selectItem(item: Any?) {
+                    isItemSelect = true
+                    this.item = item
+                }
+
+                override fun onDismiss(dialog: DialogInterface?) {
+                    if (!isItemSelect) {
+                        onItemSelectedListener?.onNothingSelected()
+                    } else {
+                        adapter.filter.filter(null) {
+                            var i = 0
+                            while (i < adapter.count) {
+                                if (adapter.getItem(i) == item) {
+                                    onItemSelectedListener?.onItemSelected(i)
+                                    break
+                                }
+                                i++
+                            }
+                            if (i == adapter.count) {
+                                onItemSelectedListener?.onNothingSelected()
+                            }
+                        }
+                    }
+                }
+            }
+
+            dialog.setOnDismissListener(onDismissListener)
+            itemsListView.setOnItemClickListener { _, _, position, id ->
+                val item = adapter.getItem(position)
+                onDismissListener.selectItem(item)
+                dialog.dismiss()
+            }
+            return dialog
+        }
+
+        interface OnItemSelectedListener {
+            fun onItemSelected(position: Int)
+            fun onNothingSelected()
+        }
     }
 }

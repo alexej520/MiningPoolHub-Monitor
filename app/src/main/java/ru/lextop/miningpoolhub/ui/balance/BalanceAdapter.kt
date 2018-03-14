@@ -22,6 +22,12 @@ class BalanceAdapter(appExecutors: AppExecutors) :
     ) {
     private var expandedPosition = RecyclerView.NO_POSITION
 
+    /*var unsortedItems: List<BalancePair>? = null
+        set(value) {
+            field = value
+            items = value?.sortedWith()
+        }*/
+
     var total: BalancePair? = null
         set(value) {
             val oldField = field
@@ -160,9 +166,13 @@ class BalanceAdapter(appExecutors: AppExecutors) :
     }
 
     companion object {
-        const val PAYLOAD_EXPAND = 1
-        const val PAYLOAD_COLLAPSE = 2
-        const val PAYLOAD_CONVERTED = 3
+        private const val PAYLOAD_EXPAND = 1
+        private const val PAYLOAD_COLLAPSE = 2
+        private const val PAYLOAD_CONVERTED = 3
+
+        const val SORT_ASCEND = 1
+        const val SORT_NONE = 0
+        const val SORT_DESCEND = -1
     }
 
 
