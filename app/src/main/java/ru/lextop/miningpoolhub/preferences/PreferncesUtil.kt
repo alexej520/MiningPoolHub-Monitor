@@ -15,6 +15,48 @@ abstract class Preference(
     }
 }
 
+abstract class PreferenceSet(
+    val sharedPreferences: SharedPreferences
+) {
+    private val preferences = mutableMapOf<String, Preference>()
+
+    fun register(preference: Preference) {
+        preferences[preference.key] = preference
+    }
+
+    fun registerOnChangedListener(listener: OnChangedListener) {
+        sharedPreferences.registerOnSharedPreferenceChangeListener(listener.listener)
+    }
+
+    fun unregisterOnChangedListener(listener: OnChangedListener) {
+        sharedPreferences.unregisterOnSharedPreferenceChangeListener(listener.listener)
+    }
+
+    abstract class OnChangedListener(
+        private val preferenceSet: PreferenceSet
+    ) {
+        internal val listener =
+            SharedPreferences.OnSharedPreferenceChangeListener { sharedPreferences, key ->
+                val preference = preferenceSet.preferences[key]
+                if (preference != null) {
+                    onChanged(preference)
+                }
+            }
+
+        abstract fun onChanged(preference: Preference)
+    }
+}
+
+fun PreferenceSet.registerOnChangedListener(onChanged: (Preference) -> Unit): PreferenceSet.OnChangedListener {
+    val listener = object : PreferenceSet.OnChangedListener(this) {
+        override fun onChanged(preference: Preference) {
+            onChanged(preference)
+        }
+    }
+    registerOnChangedListener(listener)
+    return listener
+}
+
 fun SharedPreferences.Editor.remove(preference: Preference) {
     remove(preference.key)
 }
@@ -30,6 +72,12 @@ class IntPreference(
             .putInt(key, value)
             .apply()
     }
+}
+
+fun PreferenceSet.intPreference(key: String, default: Int): IntPreference {
+    val preference = IntPreference(sharedPreferences, key, default)
+    register(preference)
+    return preference
 }
 
 fun SharedPreferences.Editor.put(preference: IntPreference, value: Int) {
@@ -49,6 +97,12 @@ class LongPreference(
     }
 }
 
+fun PreferenceSet.longPreference(key: String, default: Long): LongPreference {
+    val preference = LongPreference(sharedPreferences, key, default)
+    register(preference)
+    return preference
+}
+
 fun SharedPreferences.Editor.put(preference: LongPreference, value: Long) {
     putLong(preference.key, value)
 }
@@ -64,6 +118,12 @@ class FloatPreference(
             .putFloat(key, value)
             .apply()
     }
+}
+
+fun PreferenceSet.floatPreference(key: String, default: Float): FloatPreference {
+    val preference = FloatPreference(sharedPreferences, key, default)
+    register(preference)
+    return preference
 }
 
 fun SharedPreferences.Editor.put(preference: FloatPreference, value: Float) {
@@ -83,6 +143,12 @@ class BooleanPreference(
     }
 }
 
+fun PreferenceSet.booleanPreference(key: String, default: Boolean): BooleanPreference {
+    val preference = BooleanPreference(sharedPreferences, key, default)
+    register(preference)
+    return preference
+}
+
 fun SharedPreferences.Editor.put(preference: BooleanPreference, value: Boolean) {
     putBoolean(preference.key, value)
 }
@@ -100,6 +166,12 @@ class StringPreference(
     }
 }
 
+fun PreferenceSet.stringPreference(key: String, default: String): StringPreference {
+    val preference = StringPreference(sharedPreferences, key, default)
+    register(preference)
+    return preference
+}
+
 fun SharedPreferences.Editor.put(preference: StringPreference, value: String) {
     putString(preference.key, value)
 }
@@ -115,6 +187,12 @@ class StringSetPreference(
             .putStringSet(key, value)
             .apply()
     }
+}
+
+fun PreferenceSet.stringSetPreference(key: String, default: Set<String>): StringSetPreference {
+    val preference = StringSetPreference(sharedPreferences, key, default)
+    register(preference)
+    return preference
 }
 
 fun SharedPreferences.Editor.put(preference: StringSetPreference, value: Set<String>) {

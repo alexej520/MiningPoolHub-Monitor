@@ -12,9 +12,8 @@ import javax.inject.Singleton
 class PrivateAppPreferences @Inject constructor(
     @Named(AppModule.SHARED_PREFERENCES_PRIVATE) sharedPreferences: SharedPreferences,
     @Named(AppModule.CONTEXT_APPLICATION) context: Context
-) {
-    val miningpoolhubApiKey = StringPreference(
-        sharedPreferences,
+) : PreferenceSet(sharedPreferences) {
+    val miningpoolhubApiKey = stringPreference(
         context.getString(R.string.preference_key_private_miningpoolhubApiKey),
         ""
     )

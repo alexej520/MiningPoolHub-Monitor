@@ -3,6 +3,9 @@ package ru.lextop.miningpoolhub.ui.balance
 import android.arch.lifecycle.*
 import ru.lextop.miningpoolhub.db.BalanceDao
 import ru.lextop.miningpoolhub.preferences.AppPreferences
+import ru.lextop.miningpoolhub.preferences.PreferenceSet
+import ru.lextop.miningpoolhub.preferences.PrivateAppPreferences
+import ru.lextop.miningpoolhub.preferences.registerOnChangedListener
 import ru.lextop.miningpoolhub.repository.BalanceRepository
 import ru.lextop.miningpoolhub.util.AbsentLiveData
 import ru.lextop.miningpoolhub.util.setSameValueIfNotNullAndNotEmpty
@@ -13,7 +16,8 @@ import javax.inject.Inject
 class BalanceViewModel @Inject constructor(
     private val balanceRepository: BalanceRepository,
     private val balanceDao: BalanceDao,
-    private val appPreferences: AppPreferences
+    private val appPreferences: AppPreferences,
+    private val privateAppPreferences: PrivateAppPreferences
 ) : ViewModel() {
 
     private val _converter = MutableLiveData<String>()
@@ -37,7 +41,14 @@ class BalanceViewModel @Inject constructor(
 
     val balanceTotal: LiveData<Resource<BalancePair>>
 
+    val privateAppPreferencesListener: PreferenceSet.OnChangedListener
+
     init {
+        privateAppPreferencesListener = privateAppPreferences.registerOnChangedListener {
+            if (it == privateAppPreferences.miningpoolhubApiKey) {
+                clean()
+            }
+        }
         _status.addSource(balancePairs) {
             updateStatus(it, isConverted.value ?: false)
         }
@@ -129,5 +140,9 @@ class BalanceViewModel @Inject constructor(
         balanceRepository.cleanBalancePairs()
         (balancePairs as MutableLiveData).value = null
         (balanceTotal as MutableLiveData).value = null
+    }
+
+    override fun onCleared() {
+        privateAppPreferences.unregisterOnChangedListener(privateAppPreferencesListener)
     }
 }

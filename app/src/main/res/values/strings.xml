@@ -22,4 +22,7 @@
     <string name="preference_key_app_balanceIsConverted" translatable="false">balanceIsConverted</string>
     <string name="usd">USD</string>
     <string name="sortBy">Sort by</string>
+    <string name="main_balance_itemName">Balance</string>
+    <string name="main_coinMining_itemName">Coin Mining</string>
+    <string name="main_autoSwitching_itemName">Auto Switching</string>
 </resources>

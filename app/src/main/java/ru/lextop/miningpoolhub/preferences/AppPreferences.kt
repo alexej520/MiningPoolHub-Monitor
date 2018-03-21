@@ -12,15 +12,13 @@ import javax.inject.Singleton
 class AppPreferences @Inject constructor(
     @Named(AppModule.SHARED_PREFERENCES_APP) sharedPreferences: SharedPreferences,
     @Named(AppModule.CONTEXT_APPLICATION) context: Context
-) {
-    val balanceConverter = StringPreference(
-        sharedPreferences,
+): PreferenceSet(sharedPreferences) {
+    val balanceConverter = stringPreference(
         context.getString(R.string.preference_key_app_balanceConverter),
         "USD"
     )
 
-    val balanceIsConverted = BooleanPreference(
-        sharedPreferences,
+    val balanceIsConverted = booleanPreference(
         context.getString(R.string.preference_key_app_balanceIsConverted),
         false
     )
