@@ -6,17 +6,16 @@ import android.arch.persistence.room.RoomDatabase
 import android.content.ContentValues
 import android.database.sqlite.SQLiteDatabase
 import ru.lextop.miningpoolhub.util.ContentValues
-import ru.lextop.miningpoolhub.vo.Balance
-import ru.lextop.miningpoolhub.vo.Currency
-import ru.lextop.miningpoolhub.vo.Login
-import ru.lextop.miningpoolhub.vo.Ticker
+import ru.lextop.miningpoolhub.vo.*
 
 @Database(
     version = 1, entities = [
         Ticker::class,
         Balance::class,
         Currency::class,
-        Login::class
+        Login::class,
+        AutoSwitchingStat::class,
+        CoinMiningStat::class
     ]
 )
 abstract class AppDatabase : RoomDatabase() {

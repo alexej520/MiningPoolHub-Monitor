@@ -136,7 +136,7 @@ class BalanceAdapter(appExecutors: AppExecutors) :
         if (payloads.contains(PAYLOAD_EXPAND) || payloads.contains(PAYLOAD_COLLAPSE)) {
             holder.showDetails(expandedPosition == position)
         } else {
-            holder.bindBalance(if (isConverted) item.converted.data else item.current)
+            holder.bindBalance(if (isConverted) item.converted else item.current)
             if (!payloads.contains(PAYLOAD_CONVERTED)) {
                 holder.bindCurrency(item.current.currency)
             }
@@ -156,8 +156,8 @@ class BalanceAdapter(appExecutors: AppExecutors) :
         item2: BalancePair
     ): Boolean {
         val result = if (isConverted) {
-            item1.converted.data == item2.converted.data &&
-                    item1.converted.data?.currency == item2.converted.data?.currency
+            item1.converted == item2.converted &&
+                    item1.converted?.currency == item2.converted?.currency
         } else {
             item1.current == item2.current &&
                     item1.current.currency == item2.current.currency

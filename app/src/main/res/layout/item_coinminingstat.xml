@@ -10,10 +10,6 @@
             type="ru.lextop.miningpoolhub.vo.CoinMiningStat" />
 
         <variable
-            name="currency"
-            type="ru.lextop.miningpoolhub.vo.Currency" />
-
-        <variable
             name="profit"
             type="Double" />
     </data>
@@ -33,7 +29,7 @@
             android:ellipsize="end"
             android:maxLines="1"
             android:singleLine="true"
-            android:text="@{currency.name ?? coinmining.coinName}"
+            android:text="@{coinmining.currency.name ?? coinmining.coinName}"
             android:textAppearance="@style/TextAppearance.AppCompat.Body2"
             app:layout_constraintEnd_toStartOf="@+id/guideline1"
             app:layout_constraintStart_toStartOf="parent"

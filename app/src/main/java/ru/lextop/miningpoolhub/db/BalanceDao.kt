@@ -26,6 +26,12 @@ abstract class BalanceDao {
         }
     }
 
+    fun loadTickers(ids: List<String>, convertedSymbol: String): List<Ticker?> {
+        return ids.map { id ->
+            loadTicker(id, convertedSymbol)
+        }
+    }
+
     fun loadBalances(): List<Balance> {
         val result = internalLoadBalances()
         result.forEach {
@@ -52,4 +58,7 @@ abstract class BalanceDao {
 
     @Query("select * from ticker where id=:id and converted_symbol=:convertedSymbol")
     abstract fun internalLoadTicker(id: String, convertedSymbol: String): Ticker?
+
+    /*@Query("select * from ticker where id in")
+    abstract fun internalLoadTickers()*/
 }

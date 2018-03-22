@@ -1,10 +1,13 @@
 package ru.lextop.miningpoolhub.api
 
 import android.arch.lifecycle.LiveData
+import android.arch.lifecycle.MutableLiveData
+import android.arch.lifecycle.Observer
 import retrofit2.http.GET
 import retrofit2.http.Path
 import retrofit2.http.Query
 import ru.lextop.miningpoolhub.vo.Ticker
+import java.util.concurrent.atomic.AtomicInteger
 
 interface CoinmarketcapApi {
     @GET("ticker/")
@@ -67,4 +70,35 @@ interface CoinmarketcapApi {
         const val CONVERT_USD = "USD"
         const val CONVERT_ZAR = "ZAR"
     }
+}
+
+fun CoinmarketcapApi.getTickers(ids: List<String>, convert: String?): LiveData<ApiResponse<List<Ticker?>>> {
+    val result = MutableLiveData<ApiResponse<List<Ticker?>>>()
+    val responses: Array<ApiResponse<List<Ticker>>?> = arrayOfNulls(ids.size)
+    val count = AtomicInteger(0)
+
+    ids.forEachIndexed { index, id ->
+        val liveTicker = getTicker(id, convert)
+        val observer = object : Observer<ApiResponse<List<Ticker>>> {
+            override fun onChanged(tickerResponse: ApiResponse<List<Ticker>>?) {
+                liveTicker.removeObserver(this)
+                responses[index] = tickerResponse!!
+                if (count.incrementAndGet() == ids.size) {
+                    var errorMessage: String? = null
+                    val body = responses.map {
+                        if (errorMessage == null) errorMessage = it?.errorMessage
+                        if (it?.body == null) {
+                            null
+                        } else {
+                            if (it.body.size != 1) null
+                            else it.body[0]
+                        }
+                    }
+                    result.postValue(ApiResponse(body, errorMessage))
+                }
+            }
+        }
+        liveTicker.observeForever(observer)
+    }
+    return result
 }

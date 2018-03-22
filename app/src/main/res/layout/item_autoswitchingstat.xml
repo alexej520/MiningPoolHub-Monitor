@@ -10,10 +10,6 @@
             type="ru.lextop.miningpoolhub.vo.AutoSwitchingStat" />
 
         <variable
-            name="currency"
-            type="ru.lextop.miningpoolhub.vo.Currency" />
-
-        <variable
             name="profit"
             type="Double" />
     </data>
@@ -48,7 +44,7 @@
             android:ellipsize="end"
             android:maxLines="1"
             android:singleLine="true"
-            android:text="@{currency.name ?? autoswitchig.currentMiningCoin}"
+            android:text="@{autoswitching.currency.name ?? autoswitching.currentMiningCoin}"
             android:textAppearance="@style/TextAppearance.AppCompat.Body1"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="@+id/autoswitching_algo"

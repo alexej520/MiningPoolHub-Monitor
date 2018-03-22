@@ -56,7 +56,7 @@ class BalanceViewModel @Inject constructor(
                 if (res?.data != null) {
 
                     val sum = res.data.fold(null as Balance?) { s, bp ->
-                        val converted = bp.converted.data
+                        val converted = bp.converted
                         if (converted?.currency != null) {
                             if (s == null) {
                                 converted.copy().apply { currency = converted.currency }
@@ -73,7 +73,7 @@ class BalanceViewModel @Inject constructor(
                         value = Resource(
                             res.status,
                             message = res.message,
-                            data = BalancePair(sum, Resource(Status.SUCCESS, data = sum))
+                            data = BalancePair(sum, sum)
                         )
                     }
                 }
@@ -92,7 +92,7 @@ class BalanceViewModel @Inject constructor(
             status = it.status
             if (isConverted) {
                 it.data?.forEach {
-                    status = status and it.converted.status
+                    if (it.converted == null) status = Status.LOADING
                 }
             }
         }

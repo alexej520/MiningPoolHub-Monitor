@@ -65,11 +65,15 @@ class MainActivity : AppCompatActivity(), HasSupportFragmentInjector, Injectable
                 closeOnClick = true
                 delayOnDrawerClose = 500
                 onProfileChanged { _, profile, current ->
-                    if (!current) {
+                    if (!current || (profile as AbstractDrawerItem<*, *>).tag == null) {
                         navigator.clearBackStack()
-                        accountManager.login(
-                            (profile as AbstractDrawerItem<*,*>).tag as Login)
-                        navigator.openBalance()
+                        val login = (profile as AbstractDrawerItem<*, *>).tag as Login?
+                        if (login != null) {
+                            accountManager.login(login)
+                            navigator.openBalance()
+                        } else {
+                            navigator.addLoginDialog()
+                        }
                     }
                     false
                 }
@@ -101,8 +105,15 @@ class MainActivity : AppCompatActivity(), HasSupportFragmentInjector, Injectable
                 }
                 accountHeader.addProfile(profile, id)
             }
-            selectedProfile?.let { accountHeader.setActiveProfile(it, false) }
-
+            if (selectedProfile == null) {
+                selectedProfile = ProfileDrawerItem()
+                    .withName(R.string.add)
+                    .withIcon(R.drawable.ic_add_white_24dp)
+                    .withNameShown(true)
+                    .withTag(null)
+                accountHeader.addProfile(selectedProfile!!, logins.size)
+            }
+            accountHeader.setActiveProfile(selectedProfile, false)
         })
 
         if (savedInstanceState == null) {

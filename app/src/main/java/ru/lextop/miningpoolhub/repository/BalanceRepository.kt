@@ -6,6 +6,7 @@ import ru.lextop.miningpoolhub.AppExecutors
 import ru.lextop.miningpoolhub.api.ApiResponse
 import ru.lextop.miningpoolhub.api.CoinmarketcapApi
 import ru.lextop.miningpoolhub.api.MiningpoolhubApi
+import ru.lextop.miningpoolhub.api.getTickers
 import ru.lextop.miningpoolhub.db.AppDatabase
 import ru.lextop.miningpoolhub.db.BalanceDao
 import ru.lextop.miningpoolhub.vo.*
@@ -20,7 +21,7 @@ class BalanceRepository @Inject constructor(
     private val miningpoolhubApi: MiningpoolhubApi,
     private val coinmarketcapApi: CoinmarketcapApi
 ) {
-    private fun loadBalancePirsWithOldTickers(convert: String): LiveData<Resource<List<BalancePair>>> =
+    private fun loadBalancePairsWithOldTickers(convert: String): LiveData<Resource<List<BalancePair>>> =
         object : NetworkBoundResource<List<BalancePair>, List<Balance>>(appExecutors) {
             override fun saveCallResult(body: List<Balance>) {
                 db.runInTransaction {
@@ -42,11 +43,12 @@ class BalanceRepository @Inject constructor(
                             val balancePairs = balances.map { current ->
                                 val ticker = balanceDao.loadTicker(current.coin, convert)
                                 if (ticker != null) {
-                                    val converted = current * (ticker.convertedStats.price ?: Double.NaN)
+                                    val converted =
+                                        current * (ticker.convertedStats.price ?: Double.NaN)
                                     converted.currency = ticker.convertedCurrency
-                                    BalancePair(current, Resource(Status.LOADING, data = converted))
+                                    BalancePair(current, converted)
                                 } else {
-                                    BalancePair(current, Resource(Status.LOADING))
+                                    BalancePair(current, null)
                                 }
                             }
 
@@ -115,73 +117,73 @@ class BalanceRepository @Inject constructor(
             }
         }.liveData()
 
+    private fun loadTickers(
+        coins: List<String>,
+        convert: String
+    ): LiveData<Resource<List<Ticker?>>> =
+        object : NetworkBoundResource<List<Ticker?>, List<Ticker?>>(appExecutors) {
+            override fun saveCallResult(body: List<Ticker?>) {
+                balanceDao.insertTickers(body.filterNotNull())
+                balanceDao.insertCurrencies(body.mapNotNull { it?.currency })
+            }
+
+            override fun shouldFetch(data: List<Ticker?>?): Boolean {
+                return true
+            }
+
+            override fun loadFromDb(): LiveData<List<Ticker?>> {
+                return object : LiveData<List<Ticker?>>() {
+                    override fun onActive() {
+                        appExecutors.diskIO.execute {
+                            postValue(balanceDao.loadTickers(coins, convert))
+                        }
+                    }
+                }
+            }
+
+            override fun createCall(): LiveData<ApiResponse<List<Ticker?>>> {
+                return coinmarketcapApi.getTickers(coins, convert)
+            }
+        }.liveData()
+
     fun loadBalancePairs(convert: String): LiveData<Resource<List<BalancePair>>> {
         val mediatorLiveData = MediatorLiveData<Resource<List<BalancePair>>>()
-        val balancesSource = loadBalancePirsWithOldTickers(convert)
+        val balancesSource = loadBalancePairsWithOldTickers(convert)
         mediatorLiveData.addSource(balancesSource) { balancesResource ->
-            /*val result = if (balancesResource == null) {
-                null
-            } else {
-                val balanceResourceStatus = balancesResource.status
-
-                if (balanceResourceStatus == Status.ERROR || balanceResourceStatus == Status.SUCCESS) {
-                    mediatorLiveData.removeSource(balancesSource)
-                }
-
-                val convertedStatus = if (balanceResourceStatus == Status.ERROR) {
-                    Status.ERROR
-                } else {
-                    Status.LOADING
-                }
-
-                Resource(
-                    status = balancesResource.status,
-                    message = balancesResource.message,
-                    data = balancesResource.data?.map { b ->
-                        BalancePair(b, Resource(status = convertedStatus))
-                    })
-            }*/
             mediatorLiveData.postValue(balancesResource)
             if (balancesResource != null && balancesResource.status == Status.SUCCESS) {
-                balancesResource.data?.map {
-                    val coin = it.current.coin
-                    val tickerSource = loadTicker(coin, convert)
-                    mediatorLiveData.addSource(tickerSource) { tickerResource ->
-                        if (tickerResource != null) {
-                            if (tickerResource.status != Status.LOADING) {
-                                mediatorLiveData.removeSource(tickerSource)
-                            }
-                            appExecutors.mainThread.execute {
-                                val oldValue = mediatorLiveData.value
-                                val newData = oldValue?.data?.map {
-                                    if (it.current.coin == coin) {
-                                        val ticker = tickerResource.data
-                                        val convertedData = if (ticker == null) {
-                                            it.converted.data
-                                        } else {
-                                            (it.current * (ticker.convertedStats.price ?: Double.NaN))
-                                                .apply { currency = ticker.convertedCurrency }
-                                        }
-
-                                        var current = it.current
-                                        if (current.currency == null) {
-                                            current = current.copy()
-                                            current.currency = ticker?.currency
-                                        }
-                                        BalancePair(
-                                            current = current,
-                                            converted = Resource(
-                                                status = tickerResource.status,
-                                                message = tickerResource.message,
-                                                data = convertedData
-                                            )
-                                        )
-                                    } else {
-                                        it
-                                    }
+                mediatorLiveData.removeSource(balancesSource)
+                val oldData = balancesResource.data
+                if (oldData != null) {
+                    val coins = oldData.map { it.current.coin }
+                    val tickersLive = loadTickers(coins, convert)
+                    mediatorLiveData.addSource(tickersLive) { tickersResource ->
+                        if (tickersResource?.status != Status.LOADING) mediatorLiveData.removeSource(tickersLive)
+                        val tickers = tickersResource?.data
+                        if (tickers != null) {
+                            val newData = oldData.mapIndexed { index, balancePair ->
+                                val ticker = tickers[index]
+                                val converted = if (ticker == null) {
+                                    balancePair.converted
+                                } else {
+                                    (balancePair.current * (ticker.convertedStats.price
+                                            ?: Double.NaN))
+                                        .apply { currency = ticker.convertedCurrency }
                                 }
-                                mediatorLiveData.value = oldValue?.copy(data = newData)
+                                var current = balancePair.current
+                                if (current.currency == null) {
+                                    current = current.copy()
+                                    current.currency = ticker?.currency
+                                }
+                                BalancePair(current, converted)
                             }
+                            val status = tickersResource.status and balancesResource.status
+                            val message = balancesResource.message ?: tickersResource.message
+                            mediatorLiveData.value = Resource(
+                                status = status,
+                                message = message,
+                                data = newData
+                            )
                         }
                     }
                 }

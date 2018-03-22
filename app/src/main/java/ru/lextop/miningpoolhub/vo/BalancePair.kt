@@ -2,7 +2,7 @@ package ru.lextop.miningpoolhub.vo
 
 data class BalancePair(
     val current: Balance,
-    val converted: Resource<Balance>
+    val converted: Balance?
 )
 
 operator fun Balance.times(factor: Double) = copy(
