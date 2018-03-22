@@ -70,9 +70,9 @@ class BalanceFragment : Fragment(), Injectable {
 
     private fun setupActionBar() {
         val actionBar = (activity!! as AppCompatActivity).supportActionBar!!
-        arguments?.getString(ARG_NAME)?.let { actionBar.title = it }
-        actionBar.setDisplayHomeAsUpEnabled(true)
-        actionBar.setHomeAsUpIndicator(R.drawable.ic_arrow_back_white_24dp)
+        actionBar.setTitle(R.string.balance_balance_title)
+        //actionBar.setDisplayHomeAsUpEnabled(true)
+        //actionBar.setHomeAsUpIndicator(R.drawable.ic_arrow_back_white_24dp)
     }
 
     override fun onCreateOptionsMenu(menu: Menu?, inflater: MenuInflater) {
@@ -153,12 +153,8 @@ class BalanceFragment : Fragment(), Injectable {
     }
 
     companion object {
-        private const val ARG_NAME = "name"
-        fun create(name: String): BalanceFragment {
+        fun create(): BalanceFragment {
             val fragment = BalanceFragment()
-            fragment.arguments = Bundle().apply {
-                putString(ARG_NAME, name)
-            }
             return fragment
         }
     }

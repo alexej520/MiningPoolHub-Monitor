@@ -19,10 +19,10 @@ class Navigator @Inject constructor(
     private val viewModelFactory: ViewModelProvider.Factory,
     private val privateAppPreferences: PrivateAppPreferences
 ) {
-    private val transitionManager: FragmentManager = activity.supportFragmentManager
+    private val fragmentManager: FragmentManager = activity.supportFragmentManager
 
     fun openLogin() {
-        transitionManager
+        fragmentManager
             .beginTransaction()
             .replace(R.id.main_fragmentContainer, LoginFragment())
             .commit()
@@ -31,7 +31,7 @@ class Navigator @Inject constructor(
     fun editLoginDialog(login: Login) {
         val vm = ViewModelProviders.of(activity, viewModelFactory)[LoginDialogViewModel::class.java]
         vm.login.value = login
-        transitionManager
+        fragmentManager
             .beginTransaction()
             .replace(R.id.main_fragmentContainer, LoginDialog.createEdit())
             .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
@@ -42,7 +42,7 @@ class Navigator @Inject constructor(
     fun addLoginDialog() {
         val vm = ViewModelProviders.of(activity, viewModelFactory)[LoginDialogViewModel::class.java]
         vm.login.value = null
-        transitionManager
+        fragmentManager
             .beginTransaction()
             .replace(R.id.main_fragmentContainer, LoginDialog.createAdd())
             .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
@@ -50,18 +50,24 @@ class Navigator @Inject constructor(
             .commit()
     }
 
-    fun openBalance(login: Login) {
+    fun openBalance() {
         val vm = ViewModelProviders.of(activity, viewModelFactory)[BalanceViewModel::class.java]
-        if (privateAppPreferences.miningpoolhubApiKey.get() != login.apiKey) {
+        /*if (privateAppPreferences.miningpoolhubApiKey.get() != login.apiKey) {
             vm.clean()
             privateAppPreferences.miningpoolhubApiKey.save(login.apiKey)
-        }
+        }*/
         vm.retry()
-        transitionManager
+        fragmentManager
             .beginTransaction()
-            .replace(R.id.main_fragmentContainer, BalanceFragment.create(login.name))
+            .replace(R.id.main_fragmentContainer, BalanceFragment.create())
             .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
             .addToBackStack("BalanceFragment")
             .commit()
+    }
+
+    fun clearBackStack() {
+        for (i in 0 until fragmentManager.backStackEntryCount) {
+            fragmentManager.popBackStack()
+        }
     }
 }

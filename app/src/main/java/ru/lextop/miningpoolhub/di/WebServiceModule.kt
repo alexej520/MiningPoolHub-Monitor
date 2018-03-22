@@ -10,6 +10,7 @@ import okhttp3.Response
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import ru.lextop.miningpoolhub.AccountManager
 import ru.lextop.miningpoolhub.api.*
 import ru.lextop.miningpoolhub.preferences.PrivateAppPreferences
 import ru.lextop.miningpoolhub.util.LiveDataCallAdapterFactory
@@ -119,11 +120,11 @@ class WebServiceModule {
     @Provides
     @Singleton
     fun provideMiningpoolhubApiKeyInterceptor(
-        privateAppPreferences: PrivateAppPreferences
+        accountManager: AccountManager
     ): Interceptor {
         return Interceptor { chain ->
             val request = chain.request()
-            val apiKey = privateAppPreferences.miningpoolhubApiKey.get()
+            val apiKey = accountManager.getApiKey()
             val requestBuilder = request.newBuilder()
             if (apiKey.isNotEmpty()) {
                 val newUrl = request.url().newBuilder()

@@ -16,14 +16,23 @@ class AccountManager @Inject constructor(
 
     fun login(login: Login) {
         privateAppPreferences.miningpoolhubApiKey.save(login.apiKey)
-        loginListener?.invoke(login)
+        onLoginListeners.forEach { it.invoke(login) }
     }
 
     fun logout() {
         privateAppPreferences.miningpoolhubApiKey.remove()
-        loginListener?.invoke(null)
+        onLoginListeners.forEach { it.invoke(null) }
     }
 
-    // null if logout
-    var loginListener: ((Login?) -> Unit)? = null
+    fun getApiKey(): String {
+        return privateAppPreferences.miningpoolhubApiKey.get()
+    }
+
+    private val onLoginListeners: MutableList<(Login?) -> Unit> = mutableListOf()
+    fun addOnLoginListener(onChanged: (Login?) -> Unit) {
+        onLoginListeners.add(onChanged)
+    }
+    fun removeOnLoginListener(onChanged: (Login?) -> Unit) {
+        onLoginListeners.remove(onChanged)
+    }
 }

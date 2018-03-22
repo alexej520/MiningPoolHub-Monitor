@@ -1,13 +1,23 @@
 package ru.lextop.miningpoolhub.ui
 
+import android.arch.lifecycle.Observer
+import android.arch.lifecycle.ViewModelProvider
+import android.arch.lifecycle.ViewModelProviders
+import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.os.PersistableBundle
 import android.support.v4.app.Fragment
 import android.support.v7.app.AppCompatActivity
+import android.support.v7.widget.Toolbar
 import co.zsmb.materialdrawerkt.builders.accountHeader
 import co.zsmb.materialdrawerkt.builders.drawer
 import co.zsmb.materialdrawerkt.draweritems.badgeable.primaryItem
+import co.zsmb.materialdrawerkt.draweritems.profile.ProfileDrawerItemKt
 import co.zsmb.materialdrawerkt.draweritems.profile.profile
+import com.mikepenz.materialdrawer.AccountHeader
+import com.mikepenz.materialdrawer.model.AbstractDrawerItem
+import com.mikepenz.materialdrawer.model.ProfileDrawerItem
+import com.mikepenz.materialdrawer.model.interfaces.IProfile
 import dagger.android.AndroidInjector
 import dagger.android.DispatchingAndroidInjector
 import dagger.android.support.HasSupportFragmentInjector
@@ -17,6 +27,8 @@ import ru.lextop.miningpoolhub.di.Injectable
 import ru.lextop.miningpoolhub.preferences.PrivateAppPreferences
 import ru.lextop.miningpoolhub.ui.balance.BalanceFragment
 import ru.lextop.miningpoolhub.ui.login.LoginFragment
+import ru.lextop.miningpoolhub.ui.login.LoginViewModel
+import ru.lextop.miningpoolhub.vo.Login
 import javax.inject.Inject
 
 class MainActivity : AppCompatActivity(), HasSupportFragmentInjector, Injectable {
@@ -26,6 +38,10 @@ class MainActivity : AppCompatActivity(), HasSupportFragmentInjector, Injectable
     lateinit var accountManager: AccountManager
     @Inject
     lateinit var navigator: Navigator
+    @Inject
+    lateinit var viewModelFactory: ViewModelProvider.Factory
+    @Inject
+    lateinit var loginViewModel: LoginViewModel
 
     override fun supportFragmentInjector(): AndroidInjector<Fragment> {
         return supportFragmentInjector
@@ -33,20 +49,64 @@ class MainActivity : AppCompatActivity(), HasSupportFragmentInjector, Injectable
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        loginViewModel =
+                ViewModelProviders.of(this, viewModelFactory)[LoginViewModel::class.java]
         setContentView(R.layout.activity_main)
+        val supportToolbar: Toolbar = findViewById(R.id.main_toolbar)
+        setSupportActionBar(supportToolbar)
+        lateinit var accountHeader: AccountHeader
         drawer {
             //translucentStatusBar = false
             //actionBarDrawerToggleEnabled = false
-            accountHeader {
-                profile("Home", "example@gmail.com")
+            toolbar = supportToolbar
+            closeOnClick = true
+            accountHeader = accountHeader {
+                backgroundDrawable = ColorDrawable(resources.getColor(android.R.color.darker_gray))
+                closeOnClick = true
+                delayOnDrawerClose = 500
+                onProfileChanged { _, profile, current ->
+                    if (!current) {
+                        navigator.clearBackStack()
+                        accountManager.login(
+                            (profile as AbstractDrawerItem<*,*>).tag as Login)
+                        navigator.openBalance()
+                    }
+                    false
+                }
             }
 
-            primaryItem(R.string.main_balance_itemName)
+            primaryItem(R.string.main_balance_itemName) {
+                onClick { _ ->
+                    navigator.openBalance()
+                    false
+                }
+            }
             primaryItem(R.string.main_coinMining_itemName)
             primaryItem(R.string.main_autoSwitching_itemName)
         }
+
+        loginViewModel.logins.observe(this, Observer { resource ->
+            val logins = resource?.data ?: return@Observer
+            accountHeader.clear()
+            val apiKey = accountManager.getApiKey()
+            var selectedProfile: ProfileDrawerItem? = null
+            logins.forEachIndexed { id, login ->
+                val profile = ProfileDrawerItem()
+                    .withName(login.name)
+                    .withEmail(login.apiKey)
+                    .withNameShown(true)
+                    .withTag(login)
+                if (login.apiKey == apiKey) {
+                    selectedProfile = profile
+                }
+                accountHeader.addProfile(profile, id)
+            }
+            selectedProfile?.let { accountHeader.setActiveProfile(it, false) }
+
+        })
+
         if (savedInstanceState == null) {
-            navigator.openLogin()
+            navigator.openBalance()
         }
     }
 }

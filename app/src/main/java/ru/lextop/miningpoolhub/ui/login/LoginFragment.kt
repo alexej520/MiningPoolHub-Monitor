@@ -13,6 +13,7 @@ import android.support.v7.widget.PopupMenu
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import ru.lextop.miningpoolhub.AccountManager
 import ru.lextop.miningpoolhub.AppExecutors
 import ru.lextop.miningpoolhub.R
 import ru.lextop.miningpoolhub.databinding.FragmentLoginBinding
@@ -31,6 +32,9 @@ class LoginFragment : Fragment(), Injectable {
 
     @Inject
     lateinit var navigator: Navigator
+
+    @Inject
+    lateinit var accountManager: AccountManager
 
     @Inject
     lateinit var viewModelFactory: ViewModelProvider.Factory
@@ -60,7 +64,8 @@ class LoginFragment : Fragment(), Injectable {
                 val binding = ItemLoginBinding.inflate(inflater, parent, false)
                 val holder = DataBoundViewHolder(binding)
                 holder.itemView.setOnClickListener {
-                    navigator.openBalance(items!![holder.adapterPosition])
+                    accountManager.login(items!![holder.adapterPosition])
+                    navigator.openBalance()
                 }
                 holder.binding.loginAction.setOnClickListener {
                     val popupMenu = PopupMenu(context!!, holder.binding.loginAction)

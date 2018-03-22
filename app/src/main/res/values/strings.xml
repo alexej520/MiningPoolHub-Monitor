@@ -25,4 +25,5 @@
     <string name="main_balance_itemName">Balance</string>
     <string name="main_coinMining_itemName">Coin Mining</string>
     <string name="main_autoSwitching_itemName">Auto Switching</string>
+    <string name="balance_balance_title">Balance</string>
 </resources>
