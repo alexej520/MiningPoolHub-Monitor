@@ -2,10 +2,11 @@ package ru.lextop.miningpoolhub.vo
 
 import android.arch.persistence.room.ColumnInfo
 import android.arch.persistence.room.Entity
+import android.arch.persistence.room.Ignore
 import com.google.gson.annotations.SerializedName
 
-@Entity(primaryKeys = ["coin_name"], tableName = "mining_stat")
-data class MiningStat(
+@Entity(primaryKeys = ["coin_name"], tableName = "coinmining_stat")
+data class CoinMiningStat(
     @SerializedName("coin_name")
     @ColumnInfo(name = "coin_name")
     val coinName: String,
@@ -78,4 +79,7 @@ data class MiningStat(
     @SerializedName("highest_buy_price")
     @ColumnInfo(name = "highest_buy_price")
     val highestBuyPrice: Double
-)
+) {
+    @Ignore
+    var currency: Currency? = null
+}

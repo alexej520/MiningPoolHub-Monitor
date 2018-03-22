@@ -3,18 +3,18 @@ package ru.lextop.miningpoolhub.api
 import android.arch.lifecycle.LiveData
 import retrofit2.http.GET
 import retrofit2.http.Query
-import ru.lextop.miningpoolhub.vo.AutoswitchStat
+import ru.lextop.miningpoolhub.vo.AutoSwitchingStat
 import ru.lextop.miningpoolhub.vo.Balance
-import ru.lextop.miningpoolhub.vo.MiningStat
+import ru.lextop.miningpoolhub.vo.CoinMiningStat
 
 interface MiningpoolhubApi {
     @GET(PREFIX + "getminingandprofitsstatistics")
     fun getMiningAndProfitsStatistics(
-    ): LiveData<ApiResponse<List<MiningStat>>>
+    ): LiveData<ApiResponse<List<CoinMiningStat>>>
 
     @GET(PREFIX + "getautoswitchingandprofitsstatistics")
     fun getAutoSwitchingAndProfitsStatistics(
-    ): LiveData<ApiResponse<List<AutoswitchStat>>>
+    ): LiveData<ApiResponse<List<AutoSwitchingStat>>>
 
     @GET(PREFIX + "getuserallbalances")
     fun getUserAllBalances(

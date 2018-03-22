@@ -7,6 +7,7 @@ import dagger.Provides
 import ru.lextop.miningpoolhub.db.AppDatabase
 import ru.lextop.miningpoolhub.db.BalanceDao
 import ru.lextop.miningpoolhub.db.LoginDao
+import ru.lextop.miningpoolhub.db.StatDao
 import javax.inject.Named
 import javax.inject.Singleton
 
@@ -30,5 +31,11 @@ class DbModule {
     @Singleton
     fun provideLoginDao(db: AppDatabase): LoginDao {
         return db.loginDao()
+    }
+
+    @Provides
+    @Singleton
+    fun provideStatDao(db: AppDatabase): StatDao {
+        return db.statDao()
     }
 }

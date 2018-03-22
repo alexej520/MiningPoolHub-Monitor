@@ -2,10 +2,11 @@ package ru.lextop.miningpoolhub.vo
 
 import android.arch.persistence.room.ColumnInfo
 import android.arch.persistence.room.Entity
+import android.arch.persistence.room.Ignore
 import com.google.gson.annotations.SerializedName
 
-@Entity(primaryKeys = ["algo"], tableName = "autoswitch_stat")
-data class AutoswitchStat(
+@Entity(primaryKeys = ["algo"], tableName = "autoswitching_stat")
+data class AutoSwitchingStat(
     @SerializedName("algo")
     @ColumnInfo(name = "algo")
     val algo: String,
@@ -36,4 +37,7 @@ data class AutoswitchStat(
     @SerializedName("normalized_profit_nvidia")
     @ColumnInfo(name = "normalized_profit_nvidia")
     val normalizedProfitNvidia: Double
-)
+) {
+    @Ignore
+    var currency: Currency? = null
+}

@@ -21,15 +21,15 @@ abstract class BalanceDao {
     abstract fun insertTickers(tickers: List<Ticker>)
 
     fun loadTicker(id: String, convertedSymbol: String): Ticker? {
-        return loadTickerInternal(id, convertedSymbol)?.apply {
-            convertedCurrency = loadCurrencyBySymbolInternal(convertedSymbol)
+        return internalLoadTicker(id, convertedSymbol)?.apply {
+            convertedCurrency = internalLoadCurrencyBySymbol(convertedSymbol)
         }
     }
 
     fun loadBalances(): List<Balance> {
-        val result = loadBalanceInternal()
+        val result = internalLoadBalances()
         result.forEach {
-            it.currency = loadCurrencyByIdInternal(it.coin)
+            it.currency = internalLoadCurrencyById(it.coin)
         }
         return result
     }
@@ -42,14 +42,14 @@ abstract class BalanceDao {
 
 
     @Query("select * from balance order by coin asc")
-    abstract fun loadBalanceInternal(): List<Balance>
+    abstract fun internalLoadBalances(): List<Balance>
 
     @Query("select * from currency where id=:id")
-    abstract fun loadCurrencyByIdInternal(id: String): Currency?
+    abstract fun internalLoadCurrencyById(id: String): Currency?
 
     @Query("select * from currency where symbol=:symbol")
-    abstract fun loadCurrencyBySymbolInternal(symbol: String): Currency?
+    abstract fun internalLoadCurrencyBySymbol(symbol: String): Currency?
 
     @Query("select * from ticker where id=:id and converted_symbol=:convertedSymbol")
-    abstract fun loadTickerInternal(id: String, convertedSymbol: String): Ticker?
+    abstract fun internalLoadTicker(id: String, convertedSymbol: String): Ticker?
 }

@@ -30,14 +30,5 @@ data class Balance(
         confirmed + unconfirmed + autoExchangeConfirmed + autoExchangeUnconfirmed + onExchange
 
     @Ignore
-    private var _currency: Currency? = null
-
-    var currency: Currency?
-    get() = _currency
-    set(value) {
-        if (value?.id == "total") {
-            println("total")
-        }
-        _currency = value
-    }
+    var currency: Currency? = null
 }
