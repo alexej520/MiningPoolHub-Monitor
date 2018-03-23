@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <item name="main_manageLogins" type="id" />
+    <item name="main_addLogin" type="id" />
+    <item name="main_login" type="id" />
+    <item name="main_addFirstLogin" type="id" />
+</resources>

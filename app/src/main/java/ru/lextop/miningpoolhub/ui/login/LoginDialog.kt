@@ -5,16 +5,21 @@ import android.arch.lifecycle.ViewModelProviders
 import android.content.Context
 import android.os.Bundle
 import android.support.v4.app.DialogFragment
+import android.support.v7.app.AlertDialog
 import android.support.v7.app.AppCompatActivity
 import android.view.*
 import android.view.inputmethod.InputMethodManager
 import ru.lextop.miningpoolhub.R
 import ru.lextop.miningpoolhub.databinding.DialogLoginBinding
 import ru.lextop.miningpoolhub.di.Injectable
+import ru.lextop.miningpoolhub.ui.Navigator
+import ru.lextop.miningpoolhub.vo.Login
 import javax.inject.Inject
 
 class LoginDialog : DialogFragment(), Injectable {
 
+    @Inject
+    lateinit var navigator: Navigator
     @Inject
     lateinit var viewModelFactory: ViewModelProvider.Factory
 
@@ -31,7 +36,6 @@ class LoginDialog : DialogFragment(), Injectable {
         setHasOptionsMenu(true)
 
         binding = DialogLoginBinding.inflate(inflater, container, false)
-        binding.loginName.error
         return binding.root
     }
 
@@ -67,13 +71,15 @@ class LoginDialog : DialogFragment(), Injectable {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
-            android.R.id.home -> activity!!.onBackPressed()
+            android.R.id.home -> {
+                navigator.popBackStack()
+            }
             R.id.save -> {
                 viewModel.save(
                     name = binding.loginName.text.toString(),
                     apiKey = binding.loginApiKey.text.toString()
                 )
-                activity!!.onBackPressed()
+                navigator.popBackStack()
             }
             else -> return super.onOptionsItemSelected(item)
         }

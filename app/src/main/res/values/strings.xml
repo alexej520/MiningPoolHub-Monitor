@@ -26,4 +26,6 @@
     <string name="main_coinMining_itemName">Coin Mining</string>
     <string name="main_autoSwitching_itemName">Auto Switching</string>
     <string name="balance_balance_title">Balance</string>
+    <string name="main_addLogin_menuItem">Add account</string>
+    <string name="main_manageLogins_menuItem">Manage accounts</string>
 </resources>

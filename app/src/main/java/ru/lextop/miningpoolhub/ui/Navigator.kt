@@ -65,6 +65,10 @@ class Navigator @Inject constructor(
             .commit()
     }
 
+    fun popBackStack() {
+        fragmentManager.popBackStack()
+    }
+
     fun clearBackStack() {
         for (i in 0 until fragmentManager.backStackEntryCount) {
             fragmentManager.popBackStack()

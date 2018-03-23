@@ -16,11 +16,14 @@ import ru.lextop.miningpoolhub.AppExecutors
 import ru.lextop.miningpoolhub.R
 import ru.lextop.miningpoolhub.databinding.FragmentBalanceBinding
 import ru.lextop.miningpoolhub.di.Injectable
+import ru.lextop.miningpoolhub.ui.Navigator
 import ru.lextop.miningpoolhub.ui.common.SearchableSpinner
 import ru.lextop.miningpoolhub.vo.*
 import javax.inject.Inject
 
 class BalanceFragment : Fragment(), Injectable {
+    @Inject
+    lateinit var navigator: Navigator
     @Inject
     lateinit var viewModelFactory: ViewModelProvider.Factory
     @Inject
@@ -85,7 +88,7 @@ class BalanceFragment : Fragment(), Injectable {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
-            android.R.id.home -> activity!!.onBackPressed()
+            android.R.id.home -> navigator.popBackStack()
             R.id.balance_isConverted -> balanceViewModel.setConverted(!balanceViewModel.isConverted.value!!)
             R.id.balance_converter -> searchableSpinnerDialogCreator.createDialog(context!!, currencyAdapter).show()
             else -> return super.onOptionsItemSelected(item)
