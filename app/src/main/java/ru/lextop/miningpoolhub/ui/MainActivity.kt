@@ -1,35 +1,28 @@
 package ru.lextop.miningpoolhub.ui
 
-import android.app.Dialog
 import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProvider
 import android.arch.lifecycle.ViewModelProviders
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
-import android.os.PersistableBundle
 import android.support.v4.app.Fragment
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.Toolbar
 import co.zsmb.materialdrawerkt.builders.accountHeader
 import co.zsmb.materialdrawerkt.builders.drawer
 import co.zsmb.materialdrawerkt.draweritems.badgeable.primaryItem
-import co.zsmb.materialdrawerkt.draweritems.profile.ProfileDrawerItemKt
-import co.zsmb.materialdrawerkt.draweritems.profile.profile
 import com.mikepenz.materialdrawer.AccountHeader
+import com.mikepenz.materialdrawer.Drawer
 import com.mikepenz.materialdrawer.model.AbstractDrawerItem
 import com.mikepenz.materialdrawer.model.ProfileDrawerItem
 import com.mikepenz.materialdrawer.model.ProfileSettingDrawerItem
-import com.mikepenz.materialdrawer.model.interfaces.IProfile
 import dagger.android.AndroidInjector
 import dagger.android.DispatchingAndroidInjector
 import dagger.android.support.HasSupportFragmentInjector
 import ru.lextop.miningpoolhub.AccountManager
 import ru.lextop.miningpoolhub.R
 import ru.lextop.miningpoolhub.di.Injectable
-import ru.lextop.miningpoolhub.preferences.PrivateAppPreferences
-import ru.lextop.miningpoolhub.ui.balance.BalanceFragment
 import ru.lextop.miningpoolhub.ui.login.LoginDialogViewModel
-import ru.lextop.miningpoolhub.ui.login.LoginFragment
 import ru.lextop.miningpoolhub.ui.login.LoginViewModel
 import ru.lextop.miningpoolhub.vo.Login
 import javax.inject.Inject
@@ -48,6 +41,8 @@ class MainActivity : AppCompatActivity(), HasSupportFragmentInjector, Injectable
     @Inject
     lateinit var loginDialogViewModel: LoginDialogViewModel
 
+    lateinit var drawer: Drawer
+
     override fun supportFragmentInjector(): AndroidInjector<Fragment> {
         return supportFragmentInjector
     }
@@ -59,13 +54,10 @@ class MainActivity : AppCompatActivity(), HasSupportFragmentInjector, Injectable
         loginDialogViewModel =
                 ViewModelProviders.of(this, viewModelFactory)[LoginDialogViewModel::class.java]
         setContentView(R.layout.activity_main)
-        val supportToolbar: Toolbar = findViewById(R.id.main_toolbar)
-        setSupportActionBar(supportToolbar)
         lateinit var accountHeader: AccountHeader
-        drawer {
+        drawer = drawer {
             //translucentStatusBar = false
             //actionBarDrawerToggleEnabled = false
-            toolbar = supportToolbar
             closeOnClick = true
             accountHeader = accountHeader {
                 backgroundDrawable = ColorDrawable(resources.getColor(android.R.color.darker_gray))
@@ -147,6 +139,11 @@ class MainActivity : AppCompatActivity(), HasSupportFragmentInjector, Injectable
                 accountHeader.profiles.size
             )
         })
+
+        loginDialogViewModel.onSaveListener = { login ->
+            accountManager.login(login)
+            navigator.openBalance()
+        }
 
         if (savedInstanceState == null) {
             navigator.openBalance()

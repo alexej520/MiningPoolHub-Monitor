@@ -10,6 +10,7 @@ import android.support.v4.app.Fragment
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.DividerItemDecoration
 import android.support.v7.widget.LinearLayoutManager
+import android.support.v7.widget.Toolbar
 import android.view.*
 import android.widget.*
 import ru.lextop.miningpoolhub.AppExecutors
@@ -35,6 +36,8 @@ class BalanceFragment : Fragment(), Injectable {
 
     lateinit var currencyAdapter: CurrencyAdapter
 
+    lateinit var currencyItem: MenuItem
+
     val searchableSpinnerDialogCreator = object : SearchableSpinner.DialogCreator() {
         init {
             onItemSelectedListener = object : OnItemSelectedListener {
@@ -46,6 +49,7 @@ class BalanceFragment : Fragment(), Injectable {
                 }
             }
         }
+
         override fun createAdapter(source: ArrayAdapter<*>): ArrayAdapter<*> {
             return CurrencyAdapter.getDialogAdapter(source as CurrencyAdapter)
         }
@@ -56,44 +60,38 @@ class BalanceFragment : Fragment(), Injectable {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        setHasOptionsMenu(true)
-        setupActionBar()
-
         binding = DataBindingUtil.inflate(inflater, R.layout.fragment_balance, container, false)
         binding.setLifecycleOwner(this)
+        setupToolbar(binding.toolbar)
 
         currencyAdapter = CurrencyAdapter(context!!)
         binding.balanceRefresh.setOnRefreshListener {
             balanceViewModel.retry()
         }
-        binding.balanceBalances.addItemDecoration(DividerItemDecoration(context, LinearLayoutManager.VERTICAL))
+        binding.balanceBalances.addItemDecoration(
+            DividerItemDecoration(
+                context,
+                LinearLayoutManager.VERTICAL
+            )
+        )
         binding.balanceAdapter = BalanceAdapter(appExecutors)
         return binding.root
     }
 
-    private fun setupActionBar() {
-        val actionBar = (activity!! as AppCompatActivity).supportActionBar!!
-        actionBar.setTitle(R.string.balance_balance_title)
-        //actionBar.setDisplayHomeAsUpEnabled(true)
-        //actionBar.setHomeAsUpIndicator(R.drawable.ic_arrow_back_white_24dp)
-    }
-
-    override fun onCreateOptionsMenu(menu: Menu?, inflater: MenuInflater) {
-        inflater.inflate(R.menu.fragment_balance, menu)
-        val currencyItem = menu!!.findItem(R.id.balance_converter)
-        balanceViewModel.converter.observe(this, Observer {
-            currencyItem.title = it
-        })
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        when (item.itemId) {
-            android.R.id.home -> navigator.popBackStack()
-            R.id.balance_isConverted -> balanceViewModel.setConverted(!balanceViewModel.isConverted.value!!)
-            R.id.balance_converter -> searchableSpinnerDialogCreator.createDialog(context!!, currencyAdapter).show()
-            else -> return super.onOptionsItemSelected(item)
+    private fun setupToolbar(toolbar: Toolbar) {
+        navigator.setupToolbarNavigationDrawer(toolbar)
+        toolbar.inflateMenu(R.menu.fragment_balance)
+        currencyItem = toolbar.menu.findItem(R.id.balance_converter)
+        toolbar.setOnMenuItemClickListener { item ->
+            when (item.itemId) {
+                R.id.balance_isConverted -> balanceViewModel.setConverted(!balanceViewModel.isConverted.value!!)
+                R.id.balance_converter -> searchableSpinnerDialogCreator.createDialog(
+                    context!!,
+                    currencyAdapter
+                ).show()
+            }
+            true
         }
-        return true
     }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
@@ -130,6 +128,11 @@ class BalanceFragment : Fragment(), Injectable {
                     snackClean()
                 }
             })
+
+        balanceViewModel.converter.observe(this, Observer {
+            currencyItem.title = it
+        })
+
         balanceViewModel.isConverted.observe(this, Observer {
             binding.balanceAdapter!!.isConverted = it ?: false
         })

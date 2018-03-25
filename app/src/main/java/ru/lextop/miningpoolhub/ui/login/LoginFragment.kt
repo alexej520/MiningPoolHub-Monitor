@@ -10,6 +10,7 @@ import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.DividerItemDecoration
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.PopupMenu
+import android.support.v7.widget.Toolbar
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -50,10 +51,11 @@ class LoginFragment : Fragment(), Injectable {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        setupActionBar()
-
         binding = DataBindingUtil.inflate(inflater, R.layout.fragment_login, container, false)
         binding.setLifecycleOwner(this)
+
+        setupToolbar(binding.toolbar)
+
         val logins = binding.loginLogins
         logins.addItemDecoration(DividerItemDecoration(logins.context, LinearLayoutManager.VERTICAL))
         adapter = object : SimpleAdapter<Login, DataBoundViewHolder<ItemLoginBinding>>(appExecutors) {
@@ -105,10 +107,8 @@ class LoginFragment : Fragment(), Injectable {
         return binding.root
     }
 
-    private fun setupActionBar() {
-        val actionBar = (activity!! as AppCompatActivity).supportActionBar!!
-        actionBar.setTitle(R.string.app_name)
-        actionBar.setDisplayHomeAsUpEnabled(false)
+    private fun setupToolbar(toolbar: Toolbar) {
+        navigator.setupToolbarNavigationPopBackStack(toolbar)
     }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {

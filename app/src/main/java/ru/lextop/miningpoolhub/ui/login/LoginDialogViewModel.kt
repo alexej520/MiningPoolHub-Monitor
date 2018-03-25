@@ -13,10 +13,16 @@ class LoginDialogViewModel @Inject constructor(
 ): ViewModel() {
     val login = MutableLiveData<Login>()
 
+    var onSaveListener: ((Login) -> Unit)? = null
+
     fun save(name: String, apiKey: String) {
+        val oldLogin = login.value
+        val newLogin = Login(apiKey, name)
+        login.value = newLogin
+        onSaveListener?.invoke(newLogin)
         appExecutors.diskIO.execute {
-            login.value?.let { loginDao.deleteLogin(it) }
-            loginDao.insertLogin(Login(apiKey, name))
+            oldLogin?.let { loginDao.deleteLogin(it) }
+            loginDao.insertLogin(newLogin)
         }
     }
 }

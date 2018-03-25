@@ -13,20 +13,38 @@
             type="ru.lextop.miningpoolhub.ui.balance.BalanceAdapter" />
     </data>
 
-    <android.support.v4.widget.SwipeRefreshLayout
-        android:id="@+id/balance_refresh"
+    <FrameLayout
+        android:id="@android:id/content"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <android.support.v7.widget.RecyclerView
-            android:id="@+id/balance_balances"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:adapter="@{balanceAdapter}"
-            android:scrollbars="vertical"
-            app:layoutManager="android.support.v7.widget.LinearLayoutManager">
+            android:orientation="vertical">
 
-        </android.support.v7.widget.RecyclerView>
-    </android.support.v4.widget.SwipeRefreshLayout>
+            <android.support.v7.widget.Toolbar
+                android:id="@id/toolbar"
+                style="@style/AppActionBar"
+                app:navigationIcon="@drawable/ic_menu_white_24dp"
+                app:title="@string/balance_balance_title" />
+
+            <android.support.v4.widget.SwipeRefreshLayout
+                android:id="@+id/balance_refresh"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <android.support.v7.widget.RecyclerView
+                    android:id="@+id/balance_balances"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:adapter="@{balanceAdapter}"
+                    android:scrollbars="vertical"
+                    app:layoutManager="android.support.v7.widget.LinearLayoutManager">
+
+                </android.support.v7.widget.RecyclerView>
+            </android.support.v4.widget.SwipeRefreshLayout>
+        </LinearLayout>
+    </FrameLayout>
 
 </layout>

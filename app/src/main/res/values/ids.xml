@@ -4,4 +4,5 @@
     <item name="main_addLogin" type="id" />
     <item name="main_login" type="id" />
     <item name="main_addFirstLogin" type="id" />
+    <item name="toolbar" type="id" />
 </resources>

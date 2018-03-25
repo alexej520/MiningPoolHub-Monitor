@@ -2,21 +2,36 @@
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
+
     <data>
+
         <variable
             name="login"
-            type="android.arch.lifecycle.LiveData&lt;ru.lextop.miningpoolhub.vo.Login&gt;"/>
+            type="android.arch.lifecycle.LiveData&lt;ru.lextop.miningpoolhub.vo.Login&gt;" />
+
+        <variable
+            name="add"
+            type="Boolean" />
     </data>
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical">
+
+        <android.support.v7.widget.Toolbar
+            android:id="@id/toolbar"
+            style="@style/AppActionBar"
+            app:menuRes="@{add ? ru.lextop.miningpoolhub.R.menu.dialog_login_add : ru.lextop.miningpoolhub.R.menu.dialog_login_edit}"
+            app:navigationIcon="@drawable/ic_close_white_24dp"
+            app:title="@{add ? @string/login_title_add : @string/login_title_edit}" />
+
         <android.support.design.widget.TextInputLayout
-            android:layout_marginTop="16dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
             android:layout_marginEnd="16dp"
             android:layout_marginStart="16dp"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_marginTop="16dp">
 
             <android.support.design.widget.TextInputEditText
                 android:id="@+id/login_name"
@@ -29,12 +44,12 @@
         </android.support.design.widget.TextInputLayout>
 
         <ru.lextop.miningpoolhub.ui.common.CustomTextInputLayout
-            android:layout_marginTop="16dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
             android:layout_marginEnd="16dp"
             android:layout_marginStart="16dp"
-            android:layout_width="match_parent"
-            app:helperText="@string/login_apiKey_helper"
-            android:layout_height="wrap_content">
+            android:layout_marginTop="16dp"
+            app:helperText="@string/login_apiKey_helper">
 
             <android.support.design.widget.TextInputEditText
                 android:id="@+id/login_apiKey"
