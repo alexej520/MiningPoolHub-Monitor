@@ -7,7 +7,6 @@ import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.support.v7.app.AppCompatActivity
-import android.support.v7.widget.Toolbar
 import co.zsmb.materialdrawerkt.builders.accountHeader
 import co.zsmb.materialdrawerkt.builders.drawer
 import co.zsmb.materialdrawerkt.draweritems.badgeable.primaryItem
@@ -47,8 +46,11 @@ class MainActivity : AppCompatActivity(), HasSupportFragmentInjector, Injectable
         return supportFragmentInjector
     }
 
+    private var loginAfterAdd = false
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        loginAfterAdd = savedInstanceState?.getBoolean(STATE_LOGIN_AFTER_ADD) ?: false
         loginViewModel =
                 ViewModelProviders.of(this, viewModelFactory)[LoginViewModel::class.java]
         loginDialogViewModel =
@@ -56,8 +58,6 @@ class MainActivity : AppCompatActivity(), HasSupportFragmentInjector, Injectable
         setContentView(R.layout.activity_main)
         lateinit var accountHeader: AccountHeader
         drawer = drawer {
-            //translucentStatusBar = false
-            //actionBarDrawerToggleEnabled = false
             closeOnClick = true
             accountHeader = accountHeader {
                 backgroundDrawable = ColorDrawable(resources.getColor(android.R.color.darker_gray))
@@ -66,9 +66,11 @@ class MainActivity : AppCompatActivity(), HasSupportFragmentInjector, Injectable
                 onProfileChanged { _, profile, current ->
                     when (profile.identifier.toInt()) {
                         R.id.main_addLogin -> {
+                            loginAfterAdd = true
                             navigator.addLoginDialog()
                         }
                         R.id.main_manageLogins -> {
+                            loginAfterAdd = false
                             navigator.openLogin()
                         }
                         R.id.main_login -> {
@@ -140,13 +142,23 @@ class MainActivity : AppCompatActivity(), HasSupportFragmentInjector, Injectable
             )
         })
 
-        loginDialogViewModel.onSaveListener = { login ->
-            accountManager.login(login)
+        loginDialogViewModel.login.observe(this, Observer {
+            if (it == null || !loginAfterAdd) return@Observer
+            accountManager.login(it)
             navigator.openBalance()
-        }
+        })
 
         if (savedInstanceState == null) {
             navigator.openBalance()
         }
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        outState.putBoolean(STATE_LOGIN_AFTER_ADD, loginAfterAdd)
+        super.onSaveInstanceState(outState)
+    }
+
+    companion object {
+        private const val STATE_LOGIN_AFTER_ADD = "loginAfterAdd"
     }
 }
